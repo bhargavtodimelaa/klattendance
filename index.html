@@ -1,0 +1,1121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="x-dns-prefetch-control" content="on">
+<link rel="dns-prefetch" href="https://dawn-fire-931d.bhargavtodimela4.workers.dev">
+<link rel="preconnect" href="https://dawn-fire-931d.bhargavtodimela4.workers.dev" crossorigin>
+<link rel="icon" type="image/png" href="https://images.crunchbase.com/image/upload/c_pad,f_auto,q_auto:eco,dpr_1/hrvvw25qyybbhafnmbav?ik-sanitizeSvg=true">
+<link rel="shortcut icon" href="https://images.crunchbase.com/image/upload/c_pad,f_auto,q_auto:eco,dpr_1/hrvvw25qyybbhafnmbav?ik-sanitizeSvg=true">
+<link rel="apple-touch-icon" href="https://images.crunchbase.com/image/upload/c_pad,f_auto,q_auto:eco,dpr_1/hrvvw25qyybbhafnmbav?ik-sanitizeSvg=true">
+<meta name="google-site-verification" content="dO40MJsX5bbJwAuRYl8ewUiN7YD_LD7attdIkx2JzKQ" />
+<title>KL University Attendance Checker – Calculate Attendance Percentage | KLU Tool</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="title" content="KL University Attendance Checker – Calculate Attendance Percentage | KLU Tool">
+<meta name="description" content="KL University Attendance Checker helps KLU students instantly calculate attendance percentage and track required classes to maintain eligibility. Fast, simple, and free tool for KL University students. Made by Bhargav.">
+<meta name="keywords" content="KL University attendance checker, kl attendance vercel website,kl erp,kl lms, KLU attendance calculator, KL University attendance percentage, KL attendance tracker, KLU attendance tool, KL student attendance calculator, KL University attendance helper, KLU attendance vercel, kl attendance checker,kl attendance vercel, kl vercel, klu vercel,klu attendance vercel,KLU attendance website, KL attendance percentage tool, KL University student utilities">
+<meta name="author" content="Bhargav">
+<meta name="robots" content="index, follow">
+<meta property="og:type" content="website">
+<meta property="og:title" content="KL University Attendance Checker">
+<meta property="og:description" content="Check and calculate your KL University attendance percentage instantly. Simple attendance calculator for KLU students.">
+<meta property="og:url" content="https://klattendance-alpha.vercel.app">
+<meta property="og:site_name" content="KL University Attendance Checker">
+<meta property="og:locale" content="en_IN">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="KL University Attendance Checker">
+<meta name="twitter:description" content="Calculate your KL University attendance percentage easily with this online attendance checker tool.">
+<meta name="theme-color" content="#0f172a">
+<link rel="canonical" href="https://klattendance-alpha.vercel.app">
+<style>
+:root{
+  --p:#1a73e8;--pd:#1557b0;--pl:#e8f0fe;
+  --surf:#fff;--bg:#f0f4f9;
+  --safe:#1e8e3e;--safe-bg:#e6f4ea;--safe-light:#d4edda;
+  --cond:#e37400;--cond-bg:#fff3e0;
+  --danger:#d93025;--danger-bg:#fce8e6;
+  --on:#202124;--onv:#5f6368;--out:#dadce0;--outs:#f1f3f4;
+  --e1:0 1px 2px rgba(60,64,67,.3),0 1px 3px 1px rgba(60,64,67,.15);
+  --e2:0 2px 6px rgba(60,64,67,.3),0 1px 10px rgba(60,64,67,.15);
+  --lec:#1a73e8;--lec-bg:#e8f0fe;
+  --pra:#1e8e3e;--pra-bg:#e6f4ea;
+  --tut:#7c3aed;--tut-bg:#ede9fe;
+  --ski:#ea8600;--ski-bg:#fff3e0;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--on);min-height:100vh}
+.app-bar{background:var(--p);color:#fff;height:64px;padding:0 24px;display:flex;align-items:center;gap:14px;box-shadow:var(--e1);position:sticky;top:0;z-index:300}
+.app-logo{width:36px;height:36px;background:rgba(255,255,255,.18);border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.app-title{font-size:19px;font-weight:600}
+.app-right{margin-left:auto;display:flex;align-items:center;gap:10px}
+.uchip{display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.18);border-radius:20px;padding:4px 14px 4px 4px;font-size:13px;font-weight:500;opacity:0;transition:opacity .3s}
+.uchip.show{opacity:1}
+.uav{width:28px;height:28px;border-radius:50%;background:rgba(255,255,255,.3);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700}
+.page{max-width:1040px;margin:0 auto;padding:24px 16px}
+.card{background:var(--surf);border-radius:16px;box-shadow:var(--e1);padding:24px;margin-bottom:20px}
+.ch{display:flex;align-items:center;gap:12px;margin-bottom:18px}
+.chi{width:38px;height:38px;border-radius:10px;background:var(--pl);color:var(--p);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.ct{font-size:17px;font-weight:600}
+.cs{font-size:12px;color:var(--onv);margin-top:2px}
+.fgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:14px}
+.field{display:flex;flex-direction:column;gap:5px}
+.field label{font-size:10.5px;font-weight:600;color:var(--onv);letter-spacing:.6px;text-transform:uppercase}
+.fi{position:relative}
+.fi input,.fi select{width:100%;height:50px;border:1.5px solid var(--out);border-radius:8px;padding:0 42px 0 13px;font-size:14px;font-family:inherit;color:var(--on);background:var(--surf);outline:none;transition:border-color .2s,box-shadow .2s;appearance:none}
+.fi input:focus,.fi select:focus{border-color:var(--p);box-shadow:0 0 0 3px rgba(26,115,232,.1)}
+.fic{position:absolute;right:11px;top:50%;transform:translateY(-50%);color:var(--onv);pointer-events:none}
+.caprow{display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap;margin-top:14px}
+.capbox{border:1.5px solid var(--out);border-radius:8px;background:var(--outs);width:150px;height:50px;overflow:hidden;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:opacity .2s}
+.capbox img{max-width:100%;max-height:100%;display:block}
+.capbox{background:linear-gradient(90deg,#f0f0f0 25%,#e0e0e0 50%,#f0f0f0 75%);background-size:200% 100%;animation:shimmer 1.2s infinite}
+@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;gap:7px;height:40px;padding:0 20px;border-radius:20px;font-family:inherit;font-size:14px;font-weight:500;cursor:pointer;border:none;transition:all .15s;white-space:nowrap}
+.btn:active{transform:scale(.97)}
+.btn-f{background:var(--p);color:#fff;box-shadow:var(--e1)}.btn-f:hover{background:var(--pd)}
+.btn-t{background:var(--pl);color:var(--p)}.btn-t:hover{background:#d2e3fc}
+.btn-o{background:transparent;color:var(--p);border:1.5px solid var(--p)}.btn-o:hover{background:var(--pl)}
+.btn-sm{height:33px;padding:0 14px;font-size:13px;border-radius:17px}
+.btn:disabled{opacity:.42;pointer-events:none}
+.brow{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+.spin{width:17px;height:17px;border:2.5px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;display:none}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* BANNER */
+.banner{display:none;align-items:center;gap:10px;padding:11px 16px;border-radius:8px;font-size:13.5px;font-weight:500;margin-bottom:16px;animation:sld .25s ease}
+@keyframes sld{from{opacity:0;transform:translateY(-5px)}to{opacity:1;transform:none}}
+.bn-err{background:var(--danger-bg);color:var(--danger)}
+.bn-ok{background:var(--safe-bg);color:var(--safe)}
+.bn-info{background:var(--pl);color:var(--p)}
+
+/* STATS ROW */
+.stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px;margin-bottom:24px}
+.stat-card{background:var(--surf);border-radius:12px;box-shadow:var(--e1);padding:14px 16px;position:relative;overflow:hidden}
+.stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:12px 12px 0 0}
+.sc-b::before{background:var(--p)}.sc-s::before{background:var(--safe)}.sc-c::before{background:var(--cond)}.sc-d::before{background:var(--danger)}.sc-g::before{background:#0891b2}
+.stat-icon{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;margin-bottom:8px}
+.si-b{background:#e8f0fe;color:var(--p)}.si-s{background:var(--safe-bg);color:var(--safe)}.si-c{background:#fff3e0;color:var(--cond)}.si-d{background:var(--danger-bg);color:var(--danger)}.si-g{background:#e0f7fa;color:#0891b2}
+.stat-val{font-size:24px;font-weight:700;line-height:1}
+.sv-b{color:var(--p)}.sv-s{color:var(--safe)}.sv-c{color:var(--cond)}.sv-d{color:var(--danger)}.sv-g{color:#0891b2}
+.stat-lbl{font-size:10.5px;font-weight:600;color:var(--onv);text-transform:uppercase;letter-spacing:.5px;margin-top:4px}
+
+/* TOOLBAR */
+.toolbar-bar{background:var(--surf);border-radius:12px;box-shadow:var(--e1);padding:12px 16px;margin-bottom:20px;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.sw{flex:1;min-width:180px;position:relative}
+.sw svg{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--onv);pointer-events:none}
+.sw input{width:100%;height:37px;border:1.5px solid var(--out);border-radius:18px;padding:0 14px 0 36px;font-size:13.5px;font-family:inherit;outline:none;background:var(--outs);color:var(--on);transition:border-color .2s}
+.sw input:focus{border-color:var(--p);background:var(--surf)}
+.chips{display:flex;gap:7px;flex-wrap:wrap}
+.chip{display:inline-flex;align-items:center;gap:5px;height:30px;padding:0 13px;border-radius:15px;font-size:12px;font-weight:500;cursor:pointer;border:1.5px solid var(--out);background:var(--surf);color:var(--onv);transition:all .15s;white-space:nowrap}
+.chip.active{background:var(--pl);border-color:var(--p);color:var(--p)}
+.chip.cs.active{background:var(--safe-bg);border-color:var(--safe);color:var(--safe)}
+.chip.cc.active{background:#fff3e0;border-color:var(--cond);color:var(--cond)}
+.chip.cd.active{background:var(--danger-bg);border-color:var(--danger);color:var(--danger)}
+
+/* ═══ TAB SWITCHER ═══ */
+.tab-row{display:flex;gap:0;background:var(--surf);border-radius:12px;box-shadow:var(--e1);padding:5px;margin-bottom:20px;width:fit-content}
+.tab-btn{display:flex;align-items:center;gap:7px;height:36px;padding:0 18px;border-radius:9px;font-size:13.5px;font-weight:500;cursor:pointer;border:none;background:transparent;color:var(--onv);transition:all .2s;white-space:nowrap}
+.tab-btn.active{background:var(--p);color:#fff;box-shadow:var(--e1)}
+.tab-btn svg{flex-shrink:0}
+
+/* ═══ SUBJECT CARD ═══ */
+.subject-card{
+  background:var(--surf);border-radius:16px;box-shadow:var(--e1);margin-bottom:16px;overflow:hidden;
+  transition:box-shadow .2s;border-left:5px solid transparent;animation:cardIn .3s ease;
+}
+@keyframes cardIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.subject-card:hover{box-shadow:var(--e2)}
+.subject-card.st-safe{border-left-color:var(--safe)}
+.subject-card.st-cond{border-left-color:var(--cond)}
+.subject-card.st-danger{border-left-color:var(--danger)}
+
+.sc-header{display:flex;align-items:flex-start;justify-content:space-between;padding:18px 20px 14px;gap:16px;flex-wrap:wrap}
+.sc-title-wrap{display:flex;flex-direction:column;gap:3px}
+.sc-name{font-size:16px;font-weight:700;color:var(--on);letter-spacing:.1px}
+.sc-code{font-size:12px;color:var(--onv);font-weight:500;letter-spacing:.3px}
+.sc-elig{font-size:11px;font-weight:600;border-radius:10px;padding:2px 9px;display:inline-block;margin-top:3px}
+.elig-safe{background:var(--safe-bg);color:var(--safe)}
+.elig-cond{background:#fff3e0;color:var(--cond)}
+.elig-danger{background:var(--danger-bg);color:var(--danger)}
+
+.sc-pct-wrap{text-align:right;flex-shrink:0}
+.sc-pct-num{font-size:38px;font-weight:800;line-height:1}
+.pct-safe{color:var(--safe)}.pct-cond{color:var(--cond)}.pct-danger{color:var(--danger)}
+.sc-pct-bar-bg{width:100%;height:5px;background:#e8eaed;border-radius:3px;overflow:hidden;margin-top:6px}
+.sc-pct-bar{height:100%;border-radius:3px;transition:width .8s cubic-bezier(.4,0,.2,1)}
+.bar-safe{background:var(--safe)}.bar-cond{background:var(--cond)}.bar-danger{background:var(--danger)}
+
+.sc-body{display:grid;grid-template-columns:1fr 1fr;gap:0;border-top:1px solid var(--out)}
+@media(max-width:640px){.sc-body{grid-template-columns:1fr}}
+.sc-components{padding:16px 20px;border-right:1px solid var(--out)}
+@media(max-width:640px){.sc-components{border-right:none;border-bottom:1px solid var(--out)}}
+.sc-section-title{font-size:11px;font-weight:700;color:var(--onv);text-transform:uppercase;letter-spacing:.7px;margin-bottom:10px;display:flex;align-items:center;gap:6px}
+
+.comp-row{display:flex;align-items:center;gap:0;margin-bottom:10px}
+.comp-row:last-child{margin-bottom:0}
+.comp-type-badge{display:inline-flex;align-items:center;height:22px;padding:0 9px;border-radius:11px;font-size:11px;font-weight:700;letter-spacing:.3px;text-transform:uppercase;flex-shrink:0;min-width:28px;justify-content:center}
+.tb-L{background:var(--lec-bg);color:var(--lec)}
+.tb-P{background:var(--pra-bg);color:var(--pra)}
+.tb-T{background:var(--tut-bg);color:var(--tut)}
+.tb-S{background:var(--ski-bg);color:var(--ski)}
+.comp-info{flex:1;margin-left:10px}
+.comp-name-line{display:flex;align-items:baseline;gap:6px;flex-wrap:wrap}
+.comp-name{font-size:13.5px;font-weight:500;color:var(--on)}
+.comp-weight{font-size:11px;color:var(--onv);background:var(--outs);padding:1px 7px;border-radius:8px}
+.comp-nums{font-size:12px;color:var(--onv);margin-top:2px}
+.comp-pct-right{margin-left:auto;text-align:right;flex-shrink:0}
+.comp-pct-val{font-size:15px;font-weight:700}
+.comp-bar-bg{width:60px;height:4px;background:#e8eaed;border-radius:2px;overflow:hidden;margin-top:4px;margin-left:auto}
+.comp-bar-fill{height:100%;border-radius:2px}
+
+.formula-row{margin-top:12px;padding:8px 10px;background:var(--outs);border-radius:8px;font-size:11.5px;color:var(--onv);line-height:1.6}
+.formula-eq{font-weight:600;font-size:12.5px}
+
+/* PROJECTIONS */
+.sc-projections{padding:16px 20px}
+.proj-block{margin-bottom:14px}
+.proj-block:last-child{margin-bottom:0}
+.proj-block-title{font-size:11px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.proj-safe-title{color:var(--safe)}
+.proj-need-title{color:var(--p)}
+.proj-divider{height:1px;background:var(--out);margin:12px 0}
+
+.proj-item{display:flex;align-items:flex-start;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--outs);gap:8px}
+.proj-item:last-child{border-bottom:none}
+.proj-item-left{display:flex;align-items:flex-start;gap:7px;flex:1}
+.proj-comp-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;margin-top:4px}
+.proj-desc{font-size:12.5px;font-weight:500;color:var(--on);line-height:1.4}
+.proj-sub{font-size:11px;color:var(--onv);display:block;margin-top:1px}
+.proj-count{font-size:12px;font-weight:600;color:var(--onv);background:var(--outs);border-radius:6px;padding:2px 8px;white-space:nowrap;font-variant-numeric:tabular-nums;flex-shrink:0}
+.proj-empty{font-size:12.5px;color:var(--onv);font-style:italic;padding:4px 0}
+
+/* ═══ NEXT CLASS SIMULATOR SECTION ═══ */
+#simSec{display:none;animation:fup .4s ease}
+
+.sim-card{
+  background:var(--surf);border-radius:16px;box-shadow:var(--e1);margin-bottom:16px;
+  overflow:hidden;border-left:5px solid transparent;animation:cardIn .3s ease;
+}
+.sim-card.st-safe{border-left-color:var(--safe)}
+.sim-card.st-cond{border-left-color:var(--cond)}
+.sim-card.st-danger{border-left-color:var(--danger)}
+.sim-card:hover{box-shadow:var(--e2)}
+
+.sim-header{display:flex;align-items:center;justify-content:space-between;padding:16px 20px 12px;gap:12px;flex-wrap:wrap;cursor:pointer;user-select:none}
+.sim-header:hover .sim-expand-icon{opacity:1}
+.sim-title-wrap{display:flex;flex-direction:column;gap:2px}
+.sim-name{font-size:15px;font-weight:700;color:var(--on)}
+.sim-code{font-size:11.5px;color:var(--onv)}
+.sim-current-pct{font-size:26px;font-weight:800;line-height:1}
+.sim-expand-icon{opacity:.5;transition:opacity .2s,transform .2s;flex-shrink:0;color:var(--onv)}
+.sim-expand-icon.open{transform:rotate(180deg)}
+
+.sim-body{border-top:1px solid var(--out);overflow:hidden;max-height:0;transition:max-height .4s ease}
+.sim-body.open{max-height:2000px}
+.sim-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:0;padding:0}
+
+.sim-comp-col{padding:16px 20px;border-right:1px solid var(--out)}
+.sim-comp-col:last-child{border-right:none}
+@media(max-width:640px){.sim-comp-col{border-right:none;border-bottom:1px solid var(--out)}}
+@media(max-width:640px){.sim-comp-col:last-child{border-bottom:none}}
+
+.sim-comp-header{display:flex;align-items:center;gap:8px;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--outs)}
+.sim-comp-label{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.4px}
+.sim-comp-stats{font-size:11px;color:var(--onv)}
+
+.sim-scenario{border-radius:10px;padding:10px 12px;margin-bottom:8px;position:relative;overflow:hidden}
+.sim-scenario:last-child{margin-bottom:0}
+.sim-scenario-skip{background:linear-gradient(135deg,#fce8e6 0%,#fff0ef 100%);border:1px solid #f5c6c2}
+.sim-scenario-attend{background:linear-gradient(135deg,#e6f4ea 0%,#f0faf2 100%);border:1px solid #b7dfbe}
+.sim-scenario-neutral{background:var(--outs);border:1px solid var(--out)}
+
+.sim-action-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;display:flex;align-items:center;gap:5px}
+.sil-skip{color:var(--danger)}
+.sil-attend{color:var(--safe)}
+
+.sim-result-row{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:3px}
+.sim-result-pct{font-size:20px;font-weight:800;line-height:1}
+.sim-result-change{font-size:11px;font-weight:600;display:flex;align-items:center;gap:3px}
+.src-down{color:var(--danger)}
+.src-up{color:var(--safe)}
+.src-same{color:var(--onv)}
+.sim-result-status{font-size:10.5px;font-weight:700;border-radius:8px;padding:2px 8px;display:inline-block;margin-top:4px}
+.sim-result-formula{font-size:10px;color:var(--onv);margin-top:5px;line-height:1.5;border-top:1px solid rgba(0,0,0,.06);padding-top:5px}
+
+/* STEPPER */
+.sim-stepper{display:flex;align-items:center;gap:0;background:rgba(0,0,0,.06);border-radius:8px;padding:3px;margin-bottom:8px;width:fit-content}
+.sim-stepper-btn{width:26px;height:26px;border-radius:6px;border:none;background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--on);font-size:15px;font-weight:700;transition:background .15s;flex-shrink:0;line-height:1}
+.sim-stepper-btn:hover{background:rgba(0,0,0,.1)}
+.sim-stepper-btn:active{background:rgba(0,0,0,.18)}
+.sim-stepper-val{min-width:70px;text-align:center;font-size:12px;font-weight:700;color:var(--on);user-select:none;padding:0 4px}
+.sim-stepper-label{font-size:10px;color:var(--onv);margin-left:6px;white-space:nowrap}
+
+/* SECTION HEADER */
+.section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px}
+.section-title{font-size:16px;font-weight:600;color:var(--on)}
+.section-count{font-size:13px;color:var(--onv)}
+
+#attsec{display:none;animation:fup .4s ease}
+@keyframes fup{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+
+/* INFO BOX */
+.info-box{background:var(--pl);border-radius:10px;padding:12px 16px;margin-bottom:16px;font-size:13px;color:var(--p);display:flex;gap:10px;align-items:flex-start;line-height:1.5}
+.info-box svg{flex-shrink:0;margin-top:1px}
+
+@media(max-width:640px){
+  .page{padding:12px 10px}
+  .card{padding:18px 14px}
+  .fgrid{grid-template-columns:1fr}
+  .sc-pct-num{font-size:28px}
+  .sim-current-pct{font-size:20px}
+}
+</style>
+</head>
+<body>
+
+<!-- APP BAR -->
+<header class="app-bar">
+  <div class="app-logo">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M5 13.18v4L12 21l7-3.82v-4L12 17l-7-3.82zM12 3L1 9l11 6 9-4.91V17h2V9L12 3z"/></svg>
+  </div>
+  <span class="app-title">KL Attendance</span>
+  <div class="app-right">
+    <div class="uchip" id="uchip">
+      <div class="uav" id="uav">?</div>
+      <span id="ulbl"></span>
+    </div>
+  </div>
+</header>
+
+<div class="page">
+
+  <div class="banner" id="banner">
+    <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor" id="bico"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
+    <span id="btxt"></span>
+  </div>
+
+  <!-- LOGIN -->
+  <div class="card" id="loginCard">
+    <div class="ch">
+      <div class="chi"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg></div>
+      <div><div class="ct">Sign In</div><div class="cs">KL University Student Portal</div></div>
+    </div>
+    <div class="fgrid">
+      <div class="field"><label>User ID</label><div class="fi">
+        <input id="user" type="text" placeholder="e.g. 2300090001" autocomplete="username">
+        <span class="fic"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg></span>
+      </div></div>
+      <div class="field"><label>Password</label><div class="fi">
+        <input id="pass" type="password" placeholder="Password" autocomplete="current-password">
+        <span class="fic"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg></span>
+      </div></div>
+    </div>
+    <div class="caprow">
+      <div class="capbox" id="capbox"><img id="capImg" alt="captcha"></div>
+      <div class="field" style="flex:1;min-width:120px"><label>CAPTCHA</label><div class="fi">
+        <input id="captcha" type="text" placeholder="Enter code" autocomplete="off">
+        <span class="fic"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12.5 8c-2.65 0-5.05.99-6.9 2.6L2 7v9h9l-3.62-3.62c1.39-1.16 3.16-1.88 5.12-1.88 3.54 0 6.55 2.31 7.6 5.5l2.37-.78C21.08 11.03 17.15 8 12.5 8z"/></svg></span>
+      </div></div>
+      <button class="btn btn-o btn-sm" onclick="refreshCaptcha()" style="align-self:flex-end">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg>
+        Refresh
+      </button>
+    </div>
+    <div class="brow">
+      <button class="btn btn-f" onclick="login()" id="loginBtn">
+        <span class="spin" id="loginSpin"></span>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M11 7L9.6 8.4l2.6 2.6H2v2h10.2l-2.6 2.6L11 17l5-5-5-5zm9 12h-8v2h8c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2h-8v2h8v14z"/></svg>
+        Sign In
+      </button>
+    </div>
+  </div>
+
+  <!-- SELECTOR -->
+  <div class="card" id="selCard" style="display:none">
+    <div class="ch">
+      <div class="chi"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M17 12h-5v5h5v-5zM16 1v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2h-1V1h-2zm3 18H5V8h14v11z"/></svg></div>
+      <div><div class="ct">Select Period</div><div class="cs">Academic year &amp; semester</div></div>
+    </div>
+    <div class="fgrid">
+      <div class="field"><label>Academic Year</label><div class="fi">
+        <select id="yearSel"><option>Loading…</option></select>
+        <span class="fic"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M7 10l5 5 5-5z"/></svg></span>
+      </div></div>
+      <div class="field"><label>Semester</label><div class="fi">
+        <select id="semSel"><option>Loading…</option></select>
+        <span class="fic"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M7 10l5 5 5-5z"/></svg></span>
+      </div></div>
+    </div>
+    <div class="brow">
+      <button class="btn btn-f" onclick="fetchAttendance()" id="fetchBtn">
+        <span class="spin" id="fetchSpin"></span>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M19 9l1.25-2.75L23 5l-2.75-1.25L19 1l-1.25 2.75L15 5l2.75 1.25L19 9zm-7.5.5L9 4 6.5 9.5 1 12l5.5 2.5L9 20l2.5-5.5L17 12l-5.5-2.5zM19 15l-1.25 2.75L15 19l2.75 1.25L19 23l1.25-2.75L23 19l-2.75-1.25L19 15z"/></svg>
+        Load Attendance
+      </button>
+    </div>
+  </div>
+
+  <!-- MAIN ATTENDANCE SECTION -->
+  <div id="attsec">
+    <!-- Stats -->
+    <div class="stats-row" id="statsRow"></div>
+
+    <!-- Tab Switcher -->
+    <div class="tab-row">
+      <button class="tab-btn active" id="tab-details" onclick="switchTab('details')">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg>
+        Attendance Details
+      </button>
+      <button class="tab-btn" id="tab-sim" onclick="switchTab('sim')">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M13 2.05V4.05C17.39 4.59 20.5 8.58 19.96 12.97C19.5 16.61 16.64 19.5 13 19.93V21.93C18.5 21.38 22.5 16.5 21.95 11C21.5 6.25 17.73 2.5 13 2.05M11 2.06C9.05 2.25 7.19 3 5.67 4.26L7.1 5.74C8.22 4.84 9.57 4.26 11 4.06V2.06M4.26 5.67C3 7.19 2.25 9.04 2.05 11H4.05C4.24 9.58 4.8 8.23 5.69 7.1L4.26 5.67M2.06 13C2.26 14.96 3.03 16.81 4.27 18.33L5.69 16.9C4.81 15.77 4.24 14.42 4.06 13H2.06M7.1 18.37L5.67 19.74C7.18 21 9.04 21.79 11 22V20C9.58 19.82 8.23 19.25 7.1 18.37M13 9V13L16 15L14.78 16.78L11 14.5V9H13Z"/></svg>
+        Next Class Simulator
+      </button>
+    </div>
+
+    <!-- ── TAB: DETAILS ── -->
+    <div id="detailsTab">
+      <!-- Toolbar -->
+      <div class="toolbar-bar">
+        <div class="sw">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+          <input type="text" id="srch" placeholder="Search subjects…" oninput="applyFilters()">
+        </div>
+        <div class="chips">
+          <button class="chip active" onclick="setFilter('all',this)">All</button>
+          <button class="chip cs" onclick="setFilter('safe',this)">
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>Safe ≥85%
+          </button>
+          <button class="chip cc" onclick="setFilter('cond',this)">
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z"/></svg>75–84%
+          </button>
+          <button class="chip cd" onclick="setFilter('danger',this)">
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>Danger &lt;75%
+          </button>
+        </div>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-t btn-sm" onclick="exportCSV()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>Export
+          </button>
+          <button class="btn btn-o btn-sm" onclick="window.print()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M19 8H5c-1.66 0-3 1.34-3 3v6h4v4h12v-4h4v-6c0-1.66-1.34-3-3-3zm-3 11H8v-5h8v5zm3-7c-.55 0-1-.45-1-1s.45-1 1-1 1 .45 1 1-.45 1-1 1zm-1-9H6v4h12V3z"/></svg>Print
+          </button>
+        </div>
+      </div>
+
+      <div class="section-header">
+        <span class="section-title" id="secTitle">Subjects</span>
+        <span class="section-count" id="secCount"></span>
+      </div>
+      <div id="cardsContainer"></div>
+    </div>
+
+    <!-- ── TAB: NEXT CLASS SIMULATOR ── -->
+    <div id="simTab" style="display:none">
+      <div class="info-box">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
+        <span>For each subject, see exactly how your <b>overall weighted attendance %</b> changes if you <b>skip</b> or <b>attend</b> the very next class of each component (L/T/P/S). Click a subject to expand.</span>
+      </div>
+      <div class="section-header">
+        <span class="section-title">All Subjects – Next Class Impact</span>
+        <span class="section-count" id="simCount"></span>
+      </div>
+      <div id="simContainer"></div>
+    </div>
+
+  </div><!-- /attsec -->
+</div>
+
+<script>
+/* ═══════════════════════════════════
+   CONFIG
+═══════════════════════════════════ */
+const WORKER = "https://dawn-fire-931d.bhargavtodimela4.workers.dev";
+let SID="", CSRF="";
+let SUBJECTS=[], curFilter="all";
+
+const CMETA = {
+  L:{ name:"Lecture",   weight:100, color:"#1a73e8", bg:"#e8f0fe", cls:"tb-L" },
+  P:{ name:"Practical", weight:50,  color:"#1e8e3e", bg:"#e6f4ea", cls:"tb-P" },
+  T:{ name:"Tutorial",  weight:25,  color:"#7c3aed", bg:"#ede9fe", cls:"tb-T" },
+  S:{ name:"Skilling",  weight:25,  color:"#ea8600", bg:"#fff3e0", cls:"tb-S" },
+};
+
+function getCompKey(name="", ltps="") {
+  const n=name.toLowerCase();
+  if(n.includes("lecture"))   return "L";
+  if(n.includes("practical")) return "P";
+  if(n.includes("tutorial"))  return "T";
+  if(n.includes("skilling"))  return "S";
+  const l=ltps.toUpperCase();
+  for(const k of ["L","P","T","S"]) if(l.includes(k)) return k;
+  return "L";
+}
+
+function getStatus(p){ return p>=85?"safe":p>=75?"cond":"danger"; }
+const ST_LABEL={safe:"Safe ✓",cond:"Conditional ⚠",danger:"Danger ✗"};
+const ST_COLOR={safe:"var(--safe)",cond:"var(--cond)",danger:"var(--danger)"};
+const ST_BG={safe:"var(--safe-bg)",cond:"var(--cond-bg)",danger:"var(--danger-bg)"};
+
+/* ═══════════════════════════════════
+   CORE MATH HELPERS
+   These are the single source of truth.
+═══════════════════════════════════ */
+
+/**
+ * Compute weighted overall % given an array of component objects.
+ * Optionally override one component's attended/conducted counts.
+ *   overrideIdx: index of comp to override (-1 = no override)
+ *   newAtt, newCond: the new attended / conducted values
+ * Returns a number rounded to 1 decimal place.
+ */
+function calcWeightedPct(components, overrideIdx=-1, newAtt=0, newCond=0) {
+  let totalWeight = 0;
+  let weightedSum = 0;
+  components.forEach((c, i) => {
+    const att  = (i === overrideIdx) ? newAtt  : c.attended;
+    const cond = (i === overrideIdx) ? newCond : c.conducted;
+    const pct  = (cond > 0) ? (att / cond * 100) : 0;
+    totalWeight += c.weight;
+    weightedSum += pct * c.weight;
+  });
+  if (totalWeight === 0) return 0;
+  return Math.round(weightedSum / totalWeight * 10) / 10;
+}
+
+/**
+ * How many consecutive classes of component[idx] can you skip
+ * while keeping overall weighted % >= threshold?
+ * Returns { canSkip: number, newAtt: number, newCond: number }
+ * canSkip = 0 means you can't even skip 1.
+ * Searches up to CAP=200.
+ */
+function calcMaxSkip(components, idx, threshold) {
+  const CAP = 200;
+  const c = components[idx];
+  let maxSkip = 0;
+  for (let n = 1; n <= CAP; n++) {
+    // Skipping = conducted goes up by 1 each time, attended stays same
+    const newCond = c.conducted + n;
+    const newAtt  = c.attended;
+    const ov = calcWeightedPct(components, idx, newAtt, newCond);
+    if (ov >= threshold) {
+      maxSkip = n;
+    } else {
+      break; // monotonically decreasing once we go below, so stop
+    }
+  }
+  return {
+    canSkip: maxSkip,
+    newAtt: c.attended,
+    newCond: c.conducted + maxSkip
+  };
+}
+
+/**
+ * How many consecutive classes of component[idx] must you attend
+ * to bring overall weighted % up to >= threshold?
+ * Returns { needAttend: number, newAtt, newCond, capped: bool }
+ * needAttend = 0 means already at/above threshold.
+ * capped = true means even 200 classes isn't enough.
+ */
+function calcMinAttend(components, idx, threshold) {
+  const CAP = 200;
+  const c = components[idx];
+  // Already at threshold?
+  const current = calcWeightedPct(components);
+  if (current >= threshold) return { needAttend: 0, newAtt: c.attended, newCond: c.conducted, capped: false };
+  for (let n = 1; n <= CAP; n++) {
+    const newAtt  = c.attended + n;
+    const newCond = c.conducted + n;
+    const ov = calcWeightedPct(components, idx, newAtt, newCond);
+    if (ov >= threshold) {
+      return { needAttend: n, newAtt, newCond, capped: false };
+    }
+  }
+  return {
+    needAttend: CAP,
+    newAtt: c.attended + CAP,
+    newCond: c.conducted + CAP,
+    capped: true
+  };
+}
+
+/* ═══════════════════════════════════
+   GROUPING: multiple API rows → one subject
+═══════════════════════════════════ */
+function groupSubjects(rows) {
+  const map = new Map();
+  rows.forEach(r => {
+    const code = (r.CourseCode||r.coursecode||r.CourseId||r.courseid||"").trim().replace(/[-_][LPTS]$/i,"");
+    const name = (r.Coursedesc||r.courseName||"").trim();
+    const key  = code || name;
+    if (!map.has(key)) map.set(key, { name, code, eligibility: r.eligibility||r.Eligibility||"", components:[], _seenKeys:new Set() });
+    const subj = map.get(key);
+    const ltps = (r.Ltps||r.ltps||"").toUpperCase();
+    const cname= r.componentName||r.ComponentName||"";
+    const ckey = getCompKey(cname, ltps);
+    if (subj._seenKeys.has(ckey)) return;
+    subj._seenKeys.add(ckey);
+    const meta      = CMETA[ckey];
+    const conducted = parseInt(r["Total Conducted"]||0)||0;
+    const attended  = parseInt(r["Total Attended"] ||0)||0;
+    const absent    = parseInt(r["Total Absent"]   ||0)||0;
+    const rawPct    = parseFloat(r.Percentage||0)||0;
+    const pct       = rawPct>0 ? rawPct : (conducted>0 ? Math.round(attended/conducted*1000)/10 : 0);
+    const apiW      = parseFloat(r.weightage||r.Weightage||r.weight||0);
+    const weight    = apiW>0 ? apiW : meta.weight;
+    subj.components.push({ key:ckey, name:meta.name, weight, pct, attended, conducted, absent, color:meta.color, bg:meta.bg, cls:meta.cls });
+  });
+
+  const ORDER={L:0,P:1,T:2,S:3};
+  map.forEach(s=>{
+    s.components.sort((a,b)=>(ORDER[a.key]||9)-(ORDER[b.key]||9));
+    delete s._seenKeys;
+    // Recalculate pct purely from raw attended/conducted for accuracy
+    s.components.forEach(c => {
+      if (c.conducted > 0) {
+        c.pct = Math.round(c.attended / c.conducted * 1000) / 10;
+      }
+    });
+    s.aggPct = calcWeightedPct(s.components);
+    s.status = getStatus(s.aggPct);
+    s.conducted = s.components.reduce((a,c)=>a+c.conducted,0);
+    s.attended  = s.components.reduce((a,c)=>a+c.attended, 0);
+    s.absent    = s.components.reduce((a,c)=>a+c.absent,   0);
+  });
+
+  return Array.from(map.values());
+}
+
+/* ═══════════════════════════════════
+   BUILD PROJECTION DATA
+   Uses the fixed calcMaxSkip / calcMinAttend.
+═══════════════════════════════════ */
+function buildProjections(subj) {
+  const comps = subj.components;
+  const projItems = [];
+  comps.forEach((c, idx)=>{
+    const curOv = calcWeightedPct(comps);
+
+    // ── SAFE TO SKIP ──
+    const skip85 = calcMaxSkip(comps, idx, 85);
+    const skip75 = calcMaxSkip(comps, idx, 75);
+
+    if (skip85.canSkip > 0) {
+      projItems.push({
+        compName: c.name, compColor: c.color,
+        n: skip85.canSkip, futAtt: skip85.newAtt, futCond: skip85.newCond,
+        threshold: 85, action: 'skip', label: 'to stay ≥85% overall', capped: false
+      });
+    }
+    // Show 75% skip only if it's more than 85% skip (gives extra info)
+    if (skip75.canSkip > 0 && skip75.canSkip > skip85.canSkip) {
+      projItems.push({
+        compName: c.name, compColor: c.color,
+        n: skip75.canSkip, futAtt: skip75.newAtt, futCond: skip75.newCond,
+        threshold: 75, action: 'skip', label: 'to stay ≥75% overall', capped: false
+      });
+    }
+    // If can't skip even 1 to maintain 85 but can for 75, still show it
+    if (skip85.canSkip === 0 && skip75.canSkip > 0) {
+      projItems.push({
+        compName: c.name, compColor: c.color,
+        n: skip75.canSkip, futAtt: skip75.newAtt, futCond: skip75.newCond,
+        threshold: 75, action: 'skip', label: 'to stay ≥75% overall', capped: false
+      });
+    }
+
+    // ── NEED TO ATTEND ──
+    if (curOv < 85) {
+      const a85 = calcMinAttend(comps, idx, 85);
+      if (a85.needAttend > 0) {
+        projItems.push({
+          compName: c.name, compColor: c.color,
+          n: a85.needAttend, futAtt: a85.newAtt, futCond: a85.newCond,
+          threshold: 85, action: 'attend', label: 'to reach ≥85% overall', capped: a85.capped
+        });
+      }
+    }
+    if (curOv < 75) {
+      const a75 = calcMinAttend(comps, idx, 75);
+      if (a75.needAttend > 0) {
+        projItems.push({
+          compName: c.name, compColor: c.color,
+          n: a75.needAttend, futAtt: a75.newAtt, futCond: a75.newCond,
+          threshold: 75, action: 'attend', label: 'to reach ≥75% overall', capped: a75.capped
+        });
+      }
+    }
+  });
+  return projItems;
+}
+
+/* ═══════════════════════════════════
+   RENDER SUBJECT CARD (Details tab)
+═══════════════════════════════════ */
+function renderCard(s) {
+  const st = s.status;
+  const pctCls = `pct-${st}`;
+  const barCls = `bar-${st}`;
+
+  let compHtml = "";
+  s.components.forEach(c => {
+    const cpSt = getStatus(c.pct);
+    const cpColor = ST_COLOR[cpSt];
+    compHtml += `
+    <div class="comp-row">
+      <span class="comp-type-badge ${c.cls}">${c.key}</span>
+      <div class="comp-info">
+        <div class="comp-name-line">
+          <span class="comp-name">${c.name}</span>
+          <span class="comp-weight">w: ${c.weight}%</span>
+        </div>
+        <div class="comp-nums">${c.attended}/${c.conducted} attended · ${c.absent} absent</div>
+      </div>
+      <div class="comp-pct-right">
+        <div class="comp-pct-val" style="color:${cpColor}">${c.pct}%</div>
+        <div class="comp-bar-bg">
+          <div class="comp-bar-fill" style="width:${Math.min(c.pct,100)}%;background:${cpColor}"></div>
+        </div>
+      </div>
+    </div>`;
+  });
+
+  // Formula — always show so it's auditable
+  let formulaHtml = "";
+  if (s.components.length > 1) {
+    const tw = s.components.reduce((a,c)=>a+c.weight,0);
+    const parts = s.components.map(c=>`(${c.pct}% × ${c.weight})`).join(" + ");
+    formulaHtml = `<div class="formula-row">
+      <div style="color:var(--onv);margin-bottom:2px;font-size:10.5px;font-weight:600;text-transform:uppercase;letter-spacing:.5px">Weighted Formula</div>
+      <div style="word-break:break-word">[${parts}] ÷ ${tw}</div>
+      <div style="margin-top:4px">= <span class="formula-eq" style="color:${ST_COLOR[st]}">${s.aggPct}%</span></div>
+    </div>`;
+  } else if (s.components.length === 1) {
+    const c = s.components[0];
+    formulaHtml = `<div class="formula-row">
+      <div style="color:var(--onv);margin-bottom:2px;font-size:10.5px;font-weight:600;text-transform:uppercase;letter-spacing:.5px">Calculation</div>
+      <div>${c.attended} attended ÷ ${c.conducted} conducted × 100</div>
+      <div style="margin-top:4px">= <span class="formula-eq" style="color:${ST_COLOR[st]}">${s.aggPct}%</span></div>
+    </div>`;
+  }
+
+  // Projections
+  const projItems = buildProjections(s);
+  const skipItems   = projItems.filter(p=>p.action==='skip').sort((a,b)=>b.threshold-a.threshold);
+  const attendItems = projItems.filter(p=>p.action==='attend').sort((a,b)=>b.threshold-a.threshold);
+
+  const renderProjItem = (item) => {
+    const nStr = item.capped ? `>200` : item.n;
+    const thresholdColor = item.threshold >= 85 ? 'var(--safe)' : 'var(--cond)';
+    return `<div class="proj-item">
+      <div class="proj-item-left">
+        <span class="proj-comp-dot" style="background:${item.compColor}"></span>
+        <div>
+          <span class="proj-desc">${nStr} × ${item.compName} class${item.n!==1?'es':''}</span>
+          <span class="proj-sub">${item.label}</span>
+        </div>
+      </div>
+      <span class="proj-count">${item.futAtt}/${item.futCond}</span>
+    </div>`;
+  };
+
+  const eligText = s.eligibility || ST_LABEL[st];
+  const eligCls  = st==="safe"?"elig-safe":st==="cond"?"elig-cond":"elig-danger";
+
+  return `
+  <div class="subject-card st-${st}">
+    <div class="sc-header">
+      <div class="sc-title-wrap">
+        <span class="sc-name">${s.name||"—"}</span>
+        ${s.code?`<span class="sc-code">${s.code}</span>`:""}
+        <span class="sc-elig ${eligCls}">${eligText}</span>
+      </div>
+      <div class="sc-pct-wrap" style="min-width:80px">
+        <div class="sc-pct-num ${pctCls}">${s.aggPct}%</div>
+        <div class="sc-pct-bar-bg" style="width:80px">
+          <div class="sc-pct-bar ${barCls}" style="width:${Math.min(s.aggPct,100)}%"></div>
+        </div>
+      </div>
+    </div>
+    <div class="sc-body">
+      <div class="sc-components">
+        <div class="sc-section-title">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm16-4H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-1 9H9V9h10v2zm-4 4H9v-2h6v2zm4-8H9V5h10v2z"/></svg>
+          Components
+        </div>
+        ${compHtml}
+        ${formulaHtml}
+      </div>
+      <div class="sc-projections">
+        <div class="sc-section-title">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg>
+          How Many Classes
+        </div>
+        <div class="proj-block">
+          <div class="proj-block-title proj-safe-title">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+            CAN SKIP (max)
+          </div>
+          ${skipItems.length>0 ? skipItems.map(renderProjItem).join("") : '<div class="proj-empty">Can\'t skip any safely right now</div>'}
+        </div>
+        ${attendItems.length>0?`
+        <div class="proj-block">
+          <div class="proj-divider"></div>
+          <div class="proj-block-title proj-need-title">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
+            NEED TO ATTEND (min)
+          </div>
+          ${attendItems.map(renderProjItem).join("")}
+        </div>`:''}
+      </div>
+    </div>
+  </div>`;
+}
+
+/* ═══════════════════════════════════
+   RENDER SIMULATOR CARDS (Next Class tab)
+   Dynamic stepper — user picks how many classes to skip/attend.
+   Each component column is fully independent.
+═══════════════════════════════════ */
+
+// Store stepper state per card: SIM_STATE[cardIdx][compIdx] = { skip: N, attend: N }
+const SIM_STATE = {};
+
+function renderSimCard(s, idx) {
+  const st = s.status;
+  const currentPct = s.aggPct;
+  const pctColor = ST_COLOR[st];
+
+  // Init stepper state for this card
+  if (!SIM_STATE[idx]) {
+    SIM_STATE[idx] = s.components.map(() => ({ skip: 1, attend: 1 }));
+  }
+
+  // Build columns — one per component (skeleton only; values filled by updateSimCol)
+  let colsHtml = "";
+  s.components.forEach((c, ci) => {
+    colsHtml += `
+    <div class="sim-comp-col">
+      <div class="sim-comp-header">
+        <span class="comp-type-badge ${c.cls}">${c.key}</span>
+        <div>
+          <div class="sim-comp-label" style="color:${c.color}">${c.name}</div>
+          <div class="sim-comp-stats">${c.attended}/${c.conducted} now · ${c.pct}% · w:${c.weight}%</div>
+        </div>
+      </div>
+
+      <!-- SKIP scenario -->
+      <div class="sim-scenario sim-scenario-skip">
+        <div class="sim-action-label sil-skip">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+          Skip ${c.name} classes
+        </div>
+        <div class="sim-stepper" style="background:rgba(211,47,47,.1)">
+          <button class="sim-stepper-btn" onclick="stepSim(${idx},${ci},'skip',-1)" style="color:var(--danger)">−</button>
+          <span class="sim-stepper-val" id="skip-lbl-${idx}-${ci}">1 class</span>
+          <button class="sim-stepper-btn" onclick="stepSim(${idx},${ci},'skip',+1)" style="color:var(--danger)">+</button>
+        </div>
+        <div class="sim-result-row">
+          <span class="sim-result-pct" id="skip-pct-${idx}-${ci}"></span>
+          <span class="sim-result-change" id="skip-delta-${idx}-${ci}"></span>
+        </div>
+        <span id="skip-badge-${idx}-${ci}"></span>
+        <div class="sim-result-formula" id="skip-formula-${idx}-${ci}"></div>
+      </div>
+
+      <!-- ATTEND scenario -->
+      <div class="sim-scenario sim-scenario-attend" style="margin-top:8px">
+        <div class="sim-action-label sil-attend">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+          Attend ${c.name} classes
+        </div>
+        <div class="sim-stepper" style="background:rgba(30,142,62,.1)">
+          <button class="sim-stepper-btn" onclick="stepSim(${idx},${ci},'attend',-1)" style="color:var(--safe)">−</button>
+          <span class="sim-stepper-val" id="att-lbl-${idx}-${ci}">1 class</span>
+          <button class="sim-stepper-btn" onclick="stepSim(${idx},${ci},'attend',+1)" style="color:var(--safe)">+</button>
+        </div>
+        <div class="sim-result-row">
+          <span class="sim-result-pct" id="att-pct-${idx}-${ci}"></span>
+          <span class="sim-result-change" id="att-delta-${idx}-${ci}"></span>
+        </div>
+        <span id="att-badge-${idx}-${ci}"></span>
+        <div class="sim-result-formula" id="att-formula-${idx}-${ci}"></div>
+      </div>
+    </div>`;
+  });
+
+  return `
+  <div class="sim-card st-${st}" id="sim-card-${idx}">
+    <div class="sim-header" onclick="toggleSim(${idx})">
+      <div class="sim-title-wrap">
+        <span class="sim-name">${s.name||"—"}</span>
+        <span class="sim-code">${s.code?s.code+' · ':''}${s.components.map(c=>c.key).join("+")} components</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px">
+        <div>
+          <div class="sim-current-pct" style="color:${pctColor}">${currentPct}%</div>
+          <div style="font-size:10px;color:var(--onv);text-align:right">current</div>
+        </div>
+        <span class="sc-elig ${st==="safe"?"elig-safe":st==="cond"?"elig-cond":"elig-danger"}">${ST_LABEL[st]}</span>
+        <svg class="sim-expand-icon" id="sim-icon-${idx}" width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M7 10l5 5 5-5z"/></svg>
+      </div>
+    </div>
+    <div class="sim-body" id="sim-body-${idx}">
+      <div class="sim-grid">${colsHtml}</div>
+    </div>
+  </div>`;
+}
+
+/** Called after HTML is injected — fills all live values for a card */
+function initSimCard(s, idx) {
+  s.components.forEach((_, ci) => updateSimCol(s, idx, ci));
+}
+
+/** Recompute and repaint one component column's skip + attend results */
+function updateSimCol(s, idx, ci) {
+  const c = s.components[ci];
+  const currentPct = s.aggPct;
+  const state = SIM_STATE[idx][ci];
+
+  // ── SKIP ──
+  const sN = state.skip;
+  const skipAtt  = c.attended;
+  const skipCond = c.conducted + sN;
+  const skipPct  = calcWeightedPct(s.components, ci, skipAtt, skipCond);
+  const skipSt   = getStatus(skipPct);
+  const skipDelta = Math.round((skipPct - currentPct) * 10) / 10;
+
+  document.getElementById(`skip-lbl-${idx}-${ci}`).textContent = `${sN} class${sN!==1?'es':''}`;
+  document.getElementById(`skip-pct-${idx}-${ci}`).textContent = `${skipPct}%`;
+  document.getElementById(`skip-pct-${idx}-${ci}`).style.color = ST_COLOR[skipSt];
+  document.getElementById(`skip-delta-${idx}-${ci}`).innerHTML = fmtDelta(skipDelta);
+  document.getElementById(`skip-badge-${idx}-${ci}`).innerHTML = badge(skipSt);
+  document.getElementById(`skip-formula-${idx}-${ci}`).textContent = buildFormulaStr(s.components, ci, skipAtt, skipCond);
+
+  // ── ATTEND ──
+  const aN = state.attend;
+  const attAtt  = c.attended + aN;
+  const attCond = c.conducted + aN;
+  const attPct  = calcWeightedPct(s.components, ci, attAtt, attCond);
+  const attSt   = getStatus(attPct);
+  const attDelta = Math.round((attPct - currentPct) * 10) / 10;
+
+  document.getElementById(`att-lbl-${idx}-${ci}`).textContent = `${aN} class${aN!==1?'es':''}`;
+  document.getElementById(`att-pct-${idx}-${ci}`).textContent = `${attPct}%`;
+  document.getElementById(`att-pct-${idx}-${ci}`).style.color = ST_COLOR[attSt];
+  document.getElementById(`att-delta-${idx}-${ci}`).innerHTML = fmtDelta(attDelta);
+  document.getElementById(`att-badge-${idx}-${ci}`).innerHTML = badge(attSt);
+  document.getElementById(`att-formula-${idx}-${ci}`).textContent = buildFormulaStr(s.components, ci, attAtt, attCond);
+}
+
+/** Stepper button handler */
+function stepSim(idx, ci, type, dir) {
+  const state = SIM_STATE[idx][ci];
+  const cur = state[type];
+  const next = Math.max(1, Math.min(50, cur + dir));
+  state[type] = next;
+  updateSimCol(SUBJECTS[idx], idx, ci);
+}
+
+function fmtDelta(d) {
+  if (d > 0) return `<span class="src-up">▲ +${d}%</span>`;
+  if (d < 0) return `<span class="src-down">▼ ${d}%</span>`;
+  return `<span class="src-same">↔ 0%</span>`;
+}
+
+function badge(st_) {
+  const cls = st_==="safe"?"elig-safe":st_==="cond"?"elig-cond":"elig-danger";
+  return `<span class="sc-elig ${cls}" style="margin-top:0">${ST_LABEL[st_]}</span>`;
+}
+
+/** Build formula string */
+function buildFormulaStr(components, overrideIdx, newAtt, newCond) {
+  if (components.length === 1) {
+    const a = (overrideIdx===0)?newAtt:components[0].attended;
+    const b = (overrideIdx===0)?newCond:components[0].conducted;
+    const p = b>0?(a/b*100).toFixed(1):0;
+    return `${a}/${b} × 100 = ${p}%`;
+  }
+  const tw = components.reduce((a,c)=>a+c.weight,0);
+  const parts = components.map((c,i) => {
+    const a = (i===overrideIdx)?newAtt:c.attended;
+    const b = (i===overrideIdx)?newCond:c.conducted;
+    const p = b>0?(a/b*100).toFixed(1):0;
+    return `${p}%×${c.weight}`;
+  });
+  const result = calcWeightedPct(components, overrideIdx, newAtt, newCond);
+  return `(${parts.join(" + ")}) ÷ ${tw} = ${result}%`;
+}
+
+function toggleSim(idx) {
+  const body = document.getElementById(`sim-body-${idx}`);
+  const icon = document.getElementById(`sim-icon-${idx}`);
+  const isOpen = body.classList.contains("open");
+  body.classList.toggle("open", !isOpen);
+  icon.classList.toggle("open", !isOpen);
+}
+
+/* ═══════════════════════════════════
+   STATS
+═══════════════════════════════════ */
+function renderStats(subjs) {
+  const pcts = subjs.map(s=>s.aggPct);
+  const avg  = pcts.length ? (pcts.reduce((a,b)=>a+b,0)/pcts.length).toFixed(1) : 0;
+  const safe = subjs.filter(s=>s.status==="safe").length;
+  const cond = subjs.filter(s=>s.status==="cond").length;
+  const dng  = subjs.filter(s=>s.status==="danger").length;
+  const tc   = subjs.reduce((a,s)=>a+s.conducted,0);
+  const ta   = subjs.reduce((a,s)=>a+s.attended, 0);
+  const ov   = tc>0 ? ((ta/tc)*100).toFixed(1) : "—";
+  const ac   = avg>=85?"s":avg>=75?"c":"d";
+  document.getElementById("statsRow").innerHTML=`
+    <div class="stat-card sc-b"><div class="stat-icon si-b"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/></svg></div><div class="stat-val sv-b">${subjs.length}</div><div class="stat-lbl">Subjects</div></div>
+    <div class="stat-card sc-${ac}"><div class="stat-icon si-${ac}"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M16 6l2.29 2.29-4.88 4.88-4-4L2 16.59 3.41 18l6-6 4 4 6.3-6.29L22 12V6z"/></svg></div><div class="stat-val sv-${ac}">${avg}%</div><div class="stat-lbl">Avg (Weighted)</div></div>
+    <div class="stat-card sc-s"><div class="stat-icon si-s"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg></div><div class="stat-val sv-s">${safe}</div><div class="stat-lbl">Safe ≥85%</div></div>
+    <div class="stat-card sc-c"><div class="stat-icon si-c"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z"/></svg></div><div class="stat-val sv-c">${cond}</div><div class="stat-lbl">Conditional</div></div>
+    <div class="stat-card sc-d"><div class="stat-icon si-d"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg></div><div class="stat-val sv-d">${dng}</div><div class="stat-lbl">Danger &lt;75%</div></div>
+    <div class="stat-card sc-g"><div class="stat-icon si-g"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zm.5 14.5h-1V11h1v5.5zm0-7h-1V7h1v2.5z"/></svg></div><div class="stat-val sv-g">${ov}%</div><div class="stat-lbl">Overall Raw</div></div>
+  `;
+}
+
+/* ═══════════════════════════════════
+   FILTER & RENDER
+═══════════════════════════════════ */
+function setFilter(f,el){
+  curFilter=f;
+  document.querySelectorAll(".chip").forEach(c=>c.classList.remove("active"));
+  el.classList.add("active");
+  applyFilters();
+}
+
+function applyFilters(){
+  const q = document.getElementById("srch").value.toLowerCase();
+  let list = SUBJECTS.filter(s=>{
+    if(curFilter==="safe"   && s.status!=="safe")   return false;
+    if(curFilter==="cond"   && s.status!=="cond")   return false;
+    if(curFilter==="danger" && s.status!=="danger") return false;
+    if(q && !s.name.toLowerCase().includes(q) && !s.code.toLowerCase().includes(q)) return false;
+    return true;
+  });
+  document.getElementById("cardsContainer").innerHTML = list.map(renderCard).join("");
+  document.getElementById("secTitle").textContent = curFilter==="all"?"All Subjects":curFilter==="safe"?"Safe Subjects":curFilter==="cond"?"Conditional Subjects":"Danger Subjects";
+  document.getElementById("secCount").textContent = `${list.length} of ${SUBJECTS.length} subject${SUBJECTS.length!==1?"s":""}`;
+}
+
+function renderSimTab() {
+  document.getElementById("simCount").textContent = `${SUBJECTS.length} subject${SUBJECTS.length!==1?"s":""}`;
+  document.getElementById("simContainer").innerHTML = SUBJECTS.map((s,i)=>renderSimCard(s,i)).join("");
+  // Fill in all live values now that DOM exists
+  SUBJECTS.forEach((s,i) => initSimCard(s,i));
+}
+
+/* ═══════════════════════════════════
+   TAB SWITCHING
+═══════════════════════════════════ */
+function switchTab(tab) {
+  document.getElementById("detailsTab").style.display = tab==="details"?"block":"none";
+  document.getElementById("simTab").style.display     = tab==="sim"?"block":"none";
+  document.getElementById("tab-details").classList.toggle("active", tab==="details");
+  document.getElementById("tab-sim").classList.toggle("active", tab==="sim");
+  if (tab==="sim") renderSimTab();
+}
+
+/* ═══════════════════════════════════
+   UI HELPERS
+═══════════════════════════════════ */
+function showBanner(msg,type="info"){
+  const b=document.getElementById("banner");
+  const ico={err:'<path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>',ok:'<path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14l-4-4 1.41-1.41L10 13.17l6.59-6.59L18 8l-8 8z"/>',info:'<path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>'};
+  document.getElementById("bico").innerHTML=ico[type]||ico.info;
+  document.getElementById("btxt").textContent=msg;
+  b.className="banner bn-"+(type==="ok"?"ok":type==="err"?"err":"info");
+  b.style.display="flex";
+  if(type!=="err") setTimeout(()=>b.style.display="none",5000);
+}
+function ld(id,sid,on){document.getElementById(id).disabled=on;document.getElementById(sid).style.display=on?"inline-block":"none";}
+
+/* ═══ CAPTCHA ═══ */
+async function refreshCaptcha(){
+  document.getElementById("capbox").style.opacity=".4";
+  try{const r=await fetch(WORKER+"/captcha");SID=r.headers.get("x-session-id");document.getElementById("capImg").src=URL.createObjectURL(await r.blob());}
+  catch{showBanner("Could not load captcha.","err");}
+  document.getElementById("capbox").style.opacity="1";
+}
+
+/* ═══ LOGIN ═══ */
+async function login(){
+  ld("loginBtn","loginSpin",true);
+  try{
+    const res=await fetch(WORKER+"/login",{method:"POST",headers:{"Content-Type":"application/json","x-session-id":SID},body:JSON.stringify({username:user.value.trim(),password:pass.value,captcha:captcha.value.trim()})});
+    const d=await res.json();
+    if(!d.success){showBanner(d.message||"Login failed.","err");refreshCaptcha();ld("loginBtn","loginSpin",false);return;}
+    SID=d.sessionId;CSRF=d.csrfToken;
+    const fill=(id,arr)=>document.getElementById(id).innerHTML=arr.map(x=>`<option value="${x.value}">${x.label}</option>`).join("");
+    fill("yearSel",d.academicYears);fill("semSel",d.semesters);
+    document.getElementById("selCard").style.display="block";
+    document.getElementById("loginCard").style.display="none";
+    const uid=user.value.trim();
+    document.getElementById("ulbl").textContent=uid;
+    document.getElementById("uav").textContent=uid[0].toUpperCase();
+    document.getElementById("uchip").classList.add("show");
+    showBanner("Logged in!","ok");
+  }catch{showBanner("Network error.","err");}
+  ld("loginBtn","loginSpin",false);
+}
+
+/* ═══ FETCH ═══ */
+async function fetchAttendance(){
+  ld("fetchBtn","fetchSpin",true);
+  try{
+    const res=await fetch(WORKER+"/attendance",{method:"POST",headers:{"Content-Type":"application/json","x-session-id":SID},body:JSON.stringify({csrfToken:CSRF,academicYear:document.getElementById("yearSel").value,semesterId:document.getElementById("semSel").value})});
+    const d=await res.json();
+    SUBJECTS=groupSubjects(d.attendanceData||[]);
+    renderStats(SUBJECTS);
+    applyFilters();
+    document.getElementById("attsec").style.display="block";
+    setTimeout(()=>document.getElementById("attsec").scrollIntoView({behavior:"smooth",block:"start"}),120);
+    showBanner(`Loaded ${SUBJECTS.length} subject${SUBJECTS.length!==1?"s":""}.`,"ok");
+  }catch{showBanner("Failed to fetch attendance.","err");}
+  ld("fetchBtn","fetchSpin",false);
+}
+
+/* ═══ EXPORT CSV ═══ */
+function exportCSV(){
+  if(!SUBJECTS.length)return;
+  const hdr=["Subject","Code","Weighted%","Status","Components","Conducted","Attended","Absent"];
+  const rows=SUBJECTS.map(s=>[
+    `"${s.name.replace(/"/g,'""')}"`,s.code,s.aggPct,
+    s.status==="safe"?"Safe":s.status==="cond"?"Conditional":"Danger",
+    `"${s.components.map(c=>`${c.key}:${c.attended}/${c.conducted}=${c.pct}%(w${c.weight})`).join("; ")}"`,
+    s.conducted,s.attended,s.absent
+  ].join(","));
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(new Blob([[hdr.join(","),...rows].join("\n")],{type:"text/csv"}));
+  a.download="kl_attendance.csv";a.click();
+  showBanner("Exported!","ok");
+}
+
+/* ═══ INIT ═══ */
+requestIdleCallback ? requestIdleCallback(refreshCaptcha) : setTimeout(refreshCaptcha, 0);
+document.getElementById("user").addEventListener("keydown",e=>e.key==="Enter"&&document.getElementById("pass").focus());
+document.getElementById("pass").addEventListener("keydown",e=>e.key==="Enter"&&document.getElementById("captcha").focus());
+document.getElementById("captcha").addEventListener("keydown",e=>e.key==="Enter"&&login());
+</script>
+<script>
+document.addEventListener("contextmenu",e=>e.preventDefault());
+document.addEventListener("keydown",e=>{
+  if(e.key==="F12"||
+    (e.ctrlKey&&e.shiftKey&&["I","J","C"].includes(e.key))||
+    (e.ctrlKey&&["u","s"].includes(e.key)))
+    e.preventDefault();
+});
+</script>
+<footer style="margin-top:60px;padding:20px;text-align:center;font-family:system-ui,Segoe UI,Arial;background:linear-gradient(135deg,#0f172a,#1e293b);color:#e5e7eb;border-top:1px solid rgba(255,255,255,0.1);backdrop-filter:blur(10px);box-shadow:0 -4px 20px rgba(0,0,0,0.2);">
+<div style="font-size:15px;margin-bottom:6px;">Made with ❤️ by <b style="color:#38bdf8;">Bhargav Todimela</b></div>
+<div style="font-size:13px;color:#94a3b8;margin-bottom:8px;">Fully Vibe Coded ✨ • Credits: Claude</div>
+<a href="https://github.com/bhargavtodimelaa/klattendance" target="_blank" style="display:inline-block;padding:6px 14px;border-radius:8px;background:#111827;color:white;text-decoration:none;font-size:13px;transition:all 0.2s ease;border:1px solid rgba(255,255,255,0.1);">⭐ View Source on GitHub</a>
+</footer>
+</body>
+</html>
