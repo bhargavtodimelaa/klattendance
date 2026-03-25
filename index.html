@@ -243,13 +243,20 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-seri
 .sim-result-status{font-size:10.5px;font-weight:700;border-radius:8px;padding:2px 8px;display:inline-block;margin-top:4px}
 .sim-result-formula{font-size:10px;color:var(--onv);margin-top:5px;line-height:1.5;border-top:1px solid rgba(0,0,0,.06);padding-top:5px}
 
-/* STEPPER */
-.sim-stepper{display:flex;align-items:center;gap:0;background:rgba(0,0,0,.06);border-radius:8px;padding:3px;margin-bottom:8px;width:fit-content}
-.sim-stepper-btn{width:26px;height:26px;border-radius:6px;border:none;background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--on);font-size:15px;font-weight:700;transition:background .15s;flex-shrink:0;line-height:1}
+/* ── CLASS TYPE SELECTOR (Single/Double/Triple) ── */
+.cls-type-row{display:flex;gap:5px;margin-bottom:10px;flex-wrap:wrap}
+.cls-type-btn{flex:1;min-width:0;height:32px;border-radius:8px;border:1.5px solid var(--out);background:var(--surf);font-size:11px;font-weight:600;cursor:pointer;transition:all .15s;color:var(--onv);white-space:nowrap;padding:0 6px;display:flex;align-items:center;justify-content:center;gap:4px}
+.cls-type-btn:hover{border-color:var(--p);color:var(--p);background:var(--pl)}
+.cls-type-btn.skip-active{background:var(--danger-bg);border-color:var(--danger);color:var(--danger)}
+.cls-type-btn.att-active{background:var(--safe-bg);border-color:var(--safe);color:var(--safe)}
+.cls-type-dot{width:6px;height:6px;border-radius:50%;background:currentColor;flex-shrink:0}
+
+/* ── STEPPER (fine tune ± on top of pill) ── */
+.sim-stepper{display:flex;align-items:center;gap:0;background:rgba(0,0,0,.05);border-radius:8px;padding:2px;margin-bottom:8px;width:100%}
+.sim-stepper-btn{width:30px;height:28px;border-radius:6px;border:none;background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;transition:background .15s;flex-shrink:0;line-height:1}
 .sim-stepper-btn:hover{background:rgba(0,0,0,.1)}
-.sim-stepper-btn:active{background:rgba(0,0,0,.18)}
-.sim-stepper-val{min-width:70px;text-align:center;font-size:12px;font-weight:700;color:var(--on);user-select:none;padding:0 4px}
-.sim-stepper-label{font-size:10px;color:var(--onv);margin-left:6px;white-space:nowrap}
+.sim-stepper-btn:active{background:rgba(0,0,0,.18);transform:scale(.93)}
+.sim-stepper-val{flex:1;text-align:center;font-size:12px;font-weight:700;color:var(--on);user-select:none}
 
 /* SECTION HEADER */
 .section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px}
@@ -414,7 +421,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-seri
     <div id="simTab" style="display:none">
       <div class="info-box">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
-        <span>For each subject, see exactly how your <b>overall weighted attendance %</b> changes if you <b>skip</b> or <b>attend</b> the very next class of each component (L/T/P/S). Click a subject to expand.</span>
+        <span>For each subject, see how your <b>overall weighted %</b> changes based on what you skip or attend. Pick <b>Single / Double / Triple</b> class type, adjust count with ±, and results update live. Click a subject to expand.</span>
       </div>
       <div class="section-header">
         <span class="section-title">All Subjects – Next Class Impact</span>
@@ -775,90 +782,90 @@ function renderCard(s) {
 }
 
 /* ═══════════════════════════════════
-   RENDER SIMULATOR CARDS (Next Class tab)
-   Dynamic stepper — user picks how many classes to skip/attend.
-   Each component column is fully independent.
+   SIMULATOR – class-type-aware stepper
+   SIM_STATE[cardIdx][compIdx] = { skipN, skipType, attN, attType }
+   Types: 1=Single, 2=Double, 3=Triple
+   Effective classes = N × type
 ═══════════════════════════════════ */
-
-// Store stepper state per card: SIM_STATE[cardIdx][compIdx] = { skip: N, attend: N }
 const SIM_STATE = {};
+const TYPE_LABEL = {1:'Single',2:'Double',3:'Triple'};
+const TYPE_ICO   = {1:'①',2:'②',3:'③'};
 
 function renderSimCard(s, idx) {
-  const st = s.status;
-  const currentPct = s.aggPct;
-  const pctColor = ST_COLOR[st];
+  const st = s.status, cur = s.aggPct;
+  if (!SIM_STATE[idx])
+    SIM_STATE[idx] = s.components.map(() => ({skipN:1,skipType:1,attN:1,attType:1}));
 
-  // Init stepper state for this card
-  if (!SIM_STATE[idx]) {
-    SIM_STATE[idx] = s.components.map(() => ({ skip: 1, attend: 1 }));
-  }
-
-  // Build columns — one per component (skeleton only; values filled by updateSimCol)
-  let colsHtml = "";
-  s.components.forEach((c, ci) => {
-    colsHtml += `
-    <div class="sim-comp-col">
-      <div class="sim-comp-header">
-        <span class="comp-type-badge ${c.cls}">${c.key}</span>
-        <div>
-          <div class="sim-comp-label" style="color:${c.color}">${c.name}</div>
-          <div class="sim-comp-stats">${c.attended}/${c.conducted} now · ${c.pct}% · w:${c.weight}%</div>
-        </div>
+  let colsHtml = s.components.map((c,ci) => `
+  <div class="sim-comp-col">
+    <div class="sim-comp-header">
+      <span class="comp-type-badge ${c.cls}">${c.key}</span>
+      <div>
+        <div class="sim-comp-label" style="color:${c.color}">${c.name}</div>
+        <div class="sim-comp-stats">${c.attended}/${c.conducted} · ${c.pct}% · w:${c.weight}%</div>
       </div>
+    </div>
 
-      <!-- SKIP scenario -->
-      <div class="sim-scenario sim-scenario-skip">
-        <div class="sim-action-label sil-skip">
-          <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
-          Skip ${c.name} classes
-        </div>
-        <div class="sim-stepper" style="background:rgba(211,47,47,.1)">
-          <button class="sim-stepper-btn" onclick="stepSim(${idx},${ci},'skip',-1)" style="color:var(--danger)">−</button>
-          <span class="sim-stepper-val" id="skip-lbl-${idx}-${ci}">1 class</span>
-          <button class="sim-stepper-btn" onclick="stepSim(${idx},${ci},'skip',+1)" style="color:var(--danger)">+</button>
-        </div>
-        <div class="sim-result-row">
-          <span class="sim-result-pct" id="skip-pct-${idx}-${ci}"></span>
-          <span class="sim-result-change" id="skip-delta-${idx}-${ci}"></span>
-        </div>
-        <span id="skip-badge-${idx}-${ci}"></span>
-        <div class="sim-result-formula" id="skip-formula-${idx}-${ci}"></div>
+    <!-- ── SKIP ── -->
+    <div class="sim-scenario sim-scenario-skip">
+      <div class="sim-action-label sil-skip">
+        <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        If you SKIP ${c.name} classes
       </div>
+      <div style="font-size:10px;color:var(--onv);margin-bottom:5px;font-weight:600;text-transform:uppercase;letter-spacing:.4px">Class type</div>
+      <div class="cls-type-row" id="skip-types-${idx}-${ci}">
+        ${[1,2,3].map(t=>`<button class="cls-type-btn${t===1?' skip-active':''}" onclick="setType(${idx},${ci},'skip',${t})" id="skip-t${t}-${idx}-${ci}">${TYPE_LABEL[t]}</button>`).join('')}
+      </div>
+      <div class="sim-stepper" style="background:rgba(211,47,47,.08)">
+        <button class="sim-stepper-btn" onclick="stepSim(${idx},${ci},'skip',-1)" style="color:var(--danger)">−</button>
+        <span class="sim-stepper-val" id="skip-lbl-${idx}-${ci}"></span>
+        <button class="sim-stepper-btn" onclick="stepSim(${idx},${ci},'skip',+1)" style="color:var(--danger)">+</button>
+      </div>
+      <div class="sim-result-row">
+        <span class="sim-result-pct" id="skip-pct-${idx}-${ci}"></span>
+        <span class="sim-result-change" id="skip-delta-${idx}-${ci}"></span>
+      </div>
+      <span id="skip-badge-${idx}-${ci}"></span>
+      <div class="sim-result-formula" id="skip-formula-${idx}-${ci}"></div>
+    </div>
 
-      <!-- ATTEND scenario -->
-      <div class="sim-scenario sim-scenario-attend" style="margin-top:8px">
-        <div class="sim-action-label sil-attend">
-          <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
-          Attend ${c.name} classes
-        </div>
-        <div class="sim-stepper" style="background:rgba(30,142,62,.1)">
-          <button class="sim-stepper-btn" onclick="stepSim(${idx},${ci},'attend',-1)" style="color:var(--safe)">−</button>
-          <span class="sim-stepper-val" id="att-lbl-${idx}-${ci}">1 class</span>
-          <button class="sim-stepper-btn" onclick="stepSim(${idx},${ci},'attend',+1)" style="color:var(--safe)">+</button>
-        </div>
-        <div class="sim-result-row">
-          <span class="sim-result-pct" id="att-pct-${idx}-${ci}"></span>
-          <span class="sim-result-change" id="att-delta-${idx}-${ci}"></span>
-        </div>
-        <span id="att-badge-${idx}-${ci}"></span>
-        <div class="sim-result-formula" id="att-formula-${idx}-${ci}"></div>
+    <!-- ── ATTEND ── -->
+    <div class="sim-scenario sim-scenario-attend" style="margin-top:8px">
+      <div class="sim-action-label sil-attend">
+        <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+        If you ATTEND ${c.name} classes
       </div>
-    </div>`;
-  });
+      <div style="font-size:10px;color:var(--onv);margin-bottom:5px;font-weight:600;text-transform:uppercase;letter-spacing:.4px">Class type</div>
+      <div class="cls-type-row" id="att-types-${idx}-${ci}">
+        ${[1,2,3].map(t=>`<button class="cls-type-btn${t===1?' att-active':''}" onclick="setType(${idx},${ci},'att',${t})" id="att-t${t}-${idx}-${ci}">${TYPE_LABEL[t]}</button>`).join('')}
+      </div>
+      <div class="sim-stepper" style="background:rgba(30,142,62,.08)">
+        <button class="sim-stepper-btn" onclick="stepSim(${idx},${ci},'att',-1)" style="color:var(--safe)">−</button>
+        <span class="sim-stepper-val" id="att-lbl-${idx}-${ci}"></span>
+        <button class="sim-stepper-btn" onclick="stepSim(${idx},${ci},'att',+1)" style="color:var(--safe)">+</button>
+      </div>
+      <div class="sim-result-row">
+        <span class="sim-result-pct" id="att-pct-${idx}-${ci}"></span>
+        <span class="sim-result-change" id="att-delta-${idx}-${ci}"></span>
+      </div>
+      <span id="att-badge-${idx}-${ci}"></span>
+      <div class="sim-result-formula" id="att-formula-${idx}-${ci}"></div>
+    </div>
+  </div>`).join('');
 
   return `
   <div class="sim-card st-${st}" id="sim-card-${idx}">
     <div class="sim-header" onclick="toggleSim(${idx})">
       <div class="sim-title-wrap">
-        <span class="sim-name">${s.name||"—"}</span>
-        <span class="sim-code">${s.code?s.code+' · ':''}${s.components.map(c=>c.key).join("+")} components</span>
+        <span class="sim-name">${s.name||'—'}</span>
+        <span class="sim-code">${s.code?s.code+' · ':''}${s.components.map(c=>c.key).join('+')} components</span>
       </div>
       <div style="display:flex;align-items:center;gap:12px">
         <div>
-          <div class="sim-current-pct" style="color:${pctColor}">${currentPct}%</div>
+          <div class="sim-current-pct" style="color:${ST_COLOR[st]}">${cur}%</div>
           <div style="font-size:10px;color:var(--onv);text-align:right">current</div>
         </div>
-        <span class="sc-elig ${st==="safe"?"elig-safe":st==="cond"?"elig-cond":"elig-danger"}">${ST_LABEL[st]}</span>
+        <span class="sc-elig ${st==='safe'?'elig-safe':st==='cond'?'elig-cond':'elig-danger'}">${ST_LABEL[st]}</span>
         <svg class="sim-expand-icon" id="sim-icon-${idx}" width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M7 10l5 5 5-5z"/></svg>
       </div>
     </div>
@@ -868,93 +875,87 @@ function renderSimCard(s, idx) {
   </div>`;
 }
 
-/** Called after HTML is injected — fills all live values for a card */
-function initSimCard(s, idx) {
-  s.components.forEach((_, ci) => updateSimCol(s, idx, ci));
+function initSimCard(s,idx){ s.components.forEach((_,ci)=>updateSimCol(s,idx,ci)); }
+
+function updateSimCol(s,idx,ci) {
+  const c=s.components[ci], cur=s.aggPct, st=SIM_STATE[idx][ci];
+
+  // SKIP: N sessions × type classes each
+  const sEff = st.skipN * st.skipType;
+  const skipAtt=c.attended, skipCond=c.conducted+sEff;
+  const skipPct=calcWeightedPct(s.components,ci,skipAtt,skipCond);
+  const skipSt=getStatus(skipPct), skipD=Math.round((skipPct-cur)*10)/10;
+  const sLabel = `${st.skipN} ${TYPE_LABEL[st.skipType]}${st.skipN>1?'':''} (${sEff} class${sEff!==1?'es':''})`;
+  el(`skip-lbl-${idx}-${ci}`).textContent = sLabel;
+  el(`skip-pct-${idx}-${ci}`).textContent = `${skipPct}%`;
+  el(`skip-pct-${idx}-${ci}`).style.color = ST_COLOR[skipSt];
+  el(`skip-delta-${idx}-${ci}`).innerHTML = fmtDelta(skipD);
+  el(`skip-badge-${idx}-${ci}`).innerHTML = badge(skipSt);
+  el(`skip-formula-${idx}-${ci}`).textContent = buildFormulaStr(s.components,ci,skipAtt,skipCond);
+
+  // ATTEND
+  const aEff = st.attN * st.attType;
+  const attAtt=c.attended+aEff, attCond=c.conducted+aEff;
+  const attPct=calcWeightedPct(s.components,ci,attAtt,attCond);
+  const attSt=getStatus(attPct), attD=Math.round((attPct-cur)*10)/10;
+  const aLabel = `${st.attN} ${TYPE_LABEL[st.attType]}${st.attN>1?'':''} (${aEff} class${aEff!==1?'es':''})`;
+  el(`att-lbl-${idx}-${ci}`).textContent = aLabel;
+  el(`att-pct-${idx}-${ci}`).textContent = `${attPct}%`;
+  el(`att-pct-${idx}-${ci}`).style.color = ST_COLOR[attSt];
+  el(`att-delta-${idx}-${ci}`).innerHTML = fmtDelta(attD);
+  el(`att-badge-${idx}-${ci}`).innerHTML = badge(attSt);
+  el(`att-formula-${idx}-${ci}`).textContent = buildFormulaStr(s.components,ci,attAtt,attCond);
 }
 
-/** Recompute and repaint one component column's skip + attend results */
-function updateSimCol(s, idx, ci) {
-  const c = s.components[ci];
-  const currentPct = s.aggPct;
-  const state = SIM_STATE[idx][ci];
+function el(id){ return document.getElementById(id); }
 
-  // ── SKIP ──
-  const sN = state.skip;
-  const skipAtt  = c.attended;
-  const skipCond = c.conducted + sN;
-  const skipPct  = calcWeightedPct(s.components, ci, skipAtt, skipCond);
-  const skipSt   = getStatus(skipPct);
-  const skipDelta = Math.round((skipPct - currentPct) * 10) / 10;
-
-  document.getElementById(`skip-lbl-${idx}-${ci}`).textContent = `${sN} class${sN!==1?'es':''}`;
-  document.getElementById(`skip-pct-${idx}-${ci}`).textContent = `${skipPct}%`;
-  document.getElementById(`skip-pct-${idx}-${ci}`).style.color = ST_COLOR[skipSt];
-  document.getElementById(`skip-delta-${idx}-${ci}`).innerHTML = fmtDelta(skipDelta);
-  document.getElementById(`skip-badge-${idx}-${ci}`).innerHTML = badge(skipSt);
-  document.getElementById(`skip-formula-${idx}-${ci}`).textContent = buildFormulaStr(s.components, ci, skipAtt, skipCond);
-
-  // ── ATTEND ──
-  const aN = state.attend;
-  const attAtt  = c.attended + aN;
-  const attCond = c.conducted + aN;
-  const attPct  = calcWeightedPct(s.components, ci, attAtt, attCond);
-  const attSt   = getStatus(attPct);
-  const attDelta = Math.round((attPct - currentPct) * 10) / 10;
-
-  document.getElementById(`att-lbl-${idx}-${ci}`).textContent = `${aN} class${aN!==1?'es':''}`;
-  document.getElementById(`att-pct-${idx}-${ci}`).textContent = `${attPct}%`;
-  document.getElementById(`att-pct-${idx}-${ci}`).style.color = ST_COLOR[attSt];
-  document.getElementById(`att-delta-${idx}-${ci}`).innerHTML = fmtDelta(attDelta);
-  document.getElementById(`att-badge-${idx}-${ci}`).innerHTML = badge(attSt);
-  document.getElementById(`att-formula-${idx}-${ci}`).textContent = buildFormulaStr(s.components, ci, attAtt, attCond);
+function setType(idx,ci,kind,t){
+  const st=SIM_STATE[idx][ci];
+  if(kind==='skip'){
+    st.skipType=t;
+    [1,2,3].forEach(x=>{ const b=el(`skip-t${x}-${idx}-${ci}`); if(b) b.className='cls-type-btn'+(x===t?' skip-active':''); });
+  } else {
+    st.attType=t;
+    [1,2,3].forEach(x=>{ const b=el(`att-t${x}-${idx}-${ci}`); if(b) b.className='cls-type-btn'+(x===t?' att-active':''); });
+  }
+  updateSimCol(SUBJECTS[idx],idx,ci);
 }
 
-/** Stepper button handler */
-function stepSim(idx, ci, type, dir) {
-  const state = SIM_STATE[idx][ci];
-  const cur = state[type];
-  const next = Math.max(1, Math.min(50, cur + dir));
-  state[type] = next;
-  updateSimCol(SUBJECTS[idx], idx, ci);
+function stepSim(idx,ci,type,dir){
+  const st=SIM_STATE[idx][ci];
+  const key=type==='skip'?'skipN':'attN';
+  st[key]=Math.max(1,Math.min(30,st[key]+dir));
+  updateSimCol(SUBJECTS[idx],idx,ci);
 }
 
-function fmtDelta(d) {
-  if (d > 0) return `<span class="src-up">▲ +${d}%</span>`;
-  if (d < 0) return `<span class="src-down">▼ ${d}%</span>`;
+function fmtDelta(d){
+  if(d>0) return `<span class="src-up">▲ +${d}%</span>`;
+  if(d<0) return `<span class="src-down">▼ ${d}%</span>`;
   return `<span class="src-same">↔ 0%</span>`;
 }
-
-function badge(st_) {
-  const cls = st_==="safe"?"elig-safe":st_==="cond"?"elig-cond":"elig-danger";
+function badge(st_){
+  const cls=st_==='safe'?'elig-safe':st_==='cond'?'elig-cond':'elig-danger';
   return `<span class="sc-elig ${cls}" style="margin-top:0">${ST_LABEL[st_]}</span>`;
 }
-
-/** Build formula string */
-function buildFormulaStr(components, overrideIdx, newAtt, newCond) {
-  if (components.length === 1) {
-    const a = (overrideIdx===0)?newAtt:components[0].attended;
-    const b = (overrideIdx===0)?newCond:components[0].conducted;
-    const p = b>0?(a/b*100).toFixed(1):0;
-    return `${a}/${b} × 100 = ${p}%`;
+function buildFormulaStr(components,overrideIdx,newAtt,newCond){
+  if(components.length===1){
+    const a=(overrideIdx===0)?newAtt:components[0].attended;
+    const b=(overrideIdx===0)?newCond:components[0].conducted;
+    return `${a}/${b} × 100 = ${b>0?(a/b*100).toFixed(1):0}%`;
   }
-  const tw = components.reduce((a,c)=>a+c.weight,0);
-  const parts = components.map((c,i) => {
-    const a = (i===overrideIdx)?newAtt:c.attended;
-    const b = (i===overrideIdx)?newCond:c.conducted;
-    const p = b>0?(a/b*100).toFixed(1):0;
-    return `${p}%×${c.weight}`;
+  const tw=components.reduce((a,c)=>a+c.weight,0);
+  const parts=components.map((c,i)=>{
+    const a=(i===overrideIdx)?newAtt:c.attended;
+    const b=(i===overrideIdx)?newCond:c.conducted;
+    return `${b>0?(a/b*100).toFixed(1):0}%×${c.weight}`;
   });
-  const result = calcWeightedPct(components, overrideIdx, newAtt, newCond);
-  return `(${parts.join(" + ")}) ÷ ${tw} = ${result}%`;
+  return `(${parts.join(' + ')}) ÷ ${tw} = ${calcWeightedPct(components,overrideIdx,newAtt,newCond)}%`;
 }
-
-function toggleSim(idx) {
-  const body = document.getElementById(`sim-body-${idx}`);
-  const icon = document.getElementById(`sim-icon-${idx}`);
-  const isOpen = body.classList.contains("open");
-  body.classList.toggle("open", !isOpen);
-  icon.classList.toggle("open", !isOpen);
+function toggleSim(idx){
+  const body=el(`sim-body-${idx}`), icon=el(`sim-icon-${idx}`);
+  const open=body.classList.contains('open');
+  body.classList.toggle('open',!open);
+  icon.classList.toggle('open',!open);
 }
 
 /* ═══════════════════════════════════
