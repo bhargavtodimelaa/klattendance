@@ -6,7 +6,7 @@ let SID="", CSRF="";
 let SUBJECTS=[], curFilter="all";
 
 const CACHE_KEY = "klAttendanceCacheV1";
-const CACHE_TTL_MS = 60 * 1000;
+const CACHE_TTL_MS = 5 * 60 * 1000;
 let cacheExpiryTimer = null;
 let captchaBlobUrl = "";
 const OFFLINE_KEY = "klAttendanceOfflineV1";
@@ -83,6 +83,97 @@ function getPriorityScore(s){
   const weakComponents = s.components.reduce((acc,c)=>acc + Math.max(0, 75 - c.pct) * (c.weight/100), 0);
   const absRate = s.conducted>0 ? (s.absent/s.conducted)*100 : 0;
   return Math.round((deficitGoal*2 + deficitDanger*4 + weakComponents + absRate*0.2) * 10) / 10;
+}
+
+function buildSubjectActionPlan(s){
+  const goal = getSubjectGoal(s);
+  if(s.aggPct >= goal){
+    return {
+      subject: s,
+      goal,
+      current: s.aggPct,
+      actionText: "Maintain attendance in all components.",
+      predicted: s.aggPct,
+      priority: getPriorityScore(s)
+    };
+  }
+
+  let best = null;
+  s.components.forEach((c, idx) => {
+    const need = calcMinAttend(s.components, idx, goal);
+    if(need.needAttend <= 0) return;
+    const projected = calcWeightedPct(s.components, {
+      [idx]: { att: c.attended + need.needAttend, cond: c.conducted + need.needAttend }
+    });
+    const candidate = { idx, comp: c, need, projected };
+    if(!best || candidate.need.needAttend < best.need.needAttend || (candidate.need.needAttend === best.need.needAttend && c.weight > best.comp.weight)) {
+      best = candidate;
+    }
+  });
+
+  if(!best){
+    return {
+      subject: s,
+      goal,
+      current: s.aggPct,
+      actionText: "No direct plan available. Keep attending upcoming classes.",
+      predicted: s.aggPct,
+      priority: getPriorityScore(s)
+    };
+  }
+
+  const capped = best.need.capped ? " (capped estimate)" : "";
+  return {
+    subject: s,
+    goal,
+    current: s.aggPct,
+    actionText: `Attend next ${best.need.needAttend} ${best.comp.name} class${best.need.needAttend===1?"":"es"}${capped}`,
+    predicted: best.projected,
+    priority: getPriorityScore(s)
+  };
+}
+
+function renderAISummary(){
+  if(!SUBJECTS.length){
+    showBanner("Load attendance first to generate AI summary.","info");
+    return;
+  }
+  const card = el("aiSummaryCard");
+  if(!card) return;
+
+  const plans = SUBJECTS
+    .slice()
+    .sort((a,b)=>getPriorityScore(b)-getPriorityScore(a))
+    .slice(0,3)
+    .map(buildSubjectActionPlan);
+
+  const avgNow = SUBJECTS.reduce((a,s)=>a+s.aggPct,0)/SUBJECTS.length;
+  const avgPred = plans.length ? plans.reduce((a,p)=>a+p.predicted,0)/plans.length : avgNow;
+
+  card.innerHTML = `
+    <div class="section-header" style="margin-bottom:12px">
+      <span class="section-title">AI Summary Card</span>
+      <span class="section-count">Top ${plans.length} urgent subjects</span>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px">
+      ${plans.map((p, i) => `
+        <div class="sim-card st-${getStatus(p.current)}" style="margin:0">
+          <div style="padding:14px 16px">
+            <div style="font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--silver);margin-bottom:6px">Priority #${i+1} · Score ${p.priority}</div>
+            <div style="font-family:var(--font-display);font-size:16px;color:var(--ivory);margin-bottom:6px">${p.subject.name||"Subject"}</div>
+            <div style="font-size:12px;color:var(--silver);margin-bottom:8px">Current ${p.current}% · Goal ${p.goal}%</div>
+            <div style="font-size:12px;color:var(--gold-2);margin-bottom:8px">Action: ${p.actionText}</div>
+            <div style="font-size:12px;color:${p.predicted>=p.goal?"var(--safe)":"var(--cond)"}">Predicted outcome: ${p.predicted}%</div>
+          </div>
+        </div>
+      `).join("")}
+    </div>
+    <div class="info-box" style="margin-top:12px;margin-bottom:0">
+      <svg fill="currentColor" height="15" viewBox="0 0 24 24" width="15"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
+      <span>If you follow these actions, focus-subject average can move from ${avgNow.toFixed(1)}% to ${avgPred.toFixed(1)}%.</span>
+    </div>
+  `;
+  card.style.display = "block";
 }
 
 /* Logic for weighted calculation - supports multiple overrides */
@@ -500,6 +591,7 @@ function renderStats(subjs){
   const ta=subjs.reduce((a,s)=>a+s.attended,0);
   const ov=tc>0?((ta/tc)*100).toFixed(1):"—";
   const ac=avg>=85?"s":avg>=75?"c":"d";
+  renderCurrentStatus(subjs);
   document.getElementById("statsRow").innerHTML=`
     <div class="stat-card sc-b" style="animation-delay:.0s"><div class="stat-icon si-b"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/></svg></div><div class="stat-val sv-b">${subjs.length}</div><div class="stat-lbl">Subjects</div></div>
     <div class="stat-card sc-${ac}" style="animation-delay:.05s"><div class="stat-icon si-${ac}"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M16 6l2.29 2.29-4.88 4.88-4-4L2 16.59 3.41 18l6-6 4 4 6.3-6.29L22 12V6z"/></svg></div><div class="stat-val sv-${ac}">${avg}%</div><div class="stat-lbl">Avg Weighted</div></div>
@@ -575,6 +667,18 @@ function ld(id,sid,on){document.getElementById(id).disabled=on;document.getEleme
 function el(id){ return document.getElementById(id); }
 
 function ensureEnhancementButtons(){
+  const attsec = el("attsec");
+  const statsRow = el("statsRow");
+  if(attsec && statsRow && !el("currentStatusCard")){
+    const card = document.createElement("div");
+    card.id = "currentStatusCard";
+    card.className = "card";
+    card.style.display = "none";
+    card.style.padding = "16px 18px";
+    card.style.marginBottom = "16px";
+    statsRow.insertAdjacentElement("beforebegin", card);
+  }
+
   const actionWrap = document.querySelector("#detailsTab .toolbar-bar > div:last-child");
   if(actionWrap && !el("priorityBtn")){
     const btn = document.createElement("button");
@@ -583,6 +687,26 @@ function ensureEnhancementButtons(){
     btn.innerHTML = '<svg fill="currentColor" height="13" viewBox="0 0 24 24" width="13"><path d="M3 13h8v-2H3v2zm0 6h14v-2H3v2zM3 7h18V5H3v2z"/></svg> Priority';
     btn.onclick = togglePriorityMode;
     actionWrap.prepend(btn);
+  }
+
+  if(actionWrap && !el("aiSummaryBtn")){
+    const btn = document.createElement("button");
+    btn.id = "aiSummaryBtn";
+    btn.className = "btn btn-t";
+    btn.innerHTML = '<svg fill="currentColor" height="13" viewBox="0 0 24 24" width="13"><path d="M9 21c0-4.97 4.03-9 9-9v9H9zm0-2h7v-7c-3.87 0-7 3.13-7 7zM5 3h14v2H5zM5 7h10v2H5zM5 11h6v2H5z"/></svg> AI Summary';
+    btn.onclick = renderAISummary;
+    actionWrap.prepend(btn);
+  }
+
+  const secHeader = document.querySelector("#detailsTab .section-header");
+  if(secHeader && !el("aiSummaryCard")){
+    const card = document.createElement("div");
+    card.id = "aiSummaryCard";
+    card.className = "card";
+    card.style.display = "none";
+    card.style.padding = "16px 18px";
+    card.style.marginBottom = "18px";
+    secHeader.insertAdjacentElement("afterend", card);
   }
 
   const simInfo = document.querySelector("#simTab .info-box");
@@ -606,6 +730,54 @@ function ensureEnhancementButtons(){
     box.innerHTML = '<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap"><div><div style="font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--cond)">Offline Snapshot</div><div id="offlineMeta" style="font-size:12px;color:var(--silver);margin-top:4px"></div></div><div style="display:flex;gap:8px"><button class="btn btn-t" onclick="fetchAttendance()">Retry Fetch</button><button class="btn btn-t" onclick="refreshCaptcha()">Retry Captcha</button></div></div>';
     banner.insertAdjacentElement("afterend", box);
   }
+}
+
+function renderCurrentStatus(subjs){
+  const card = el("currentStatusCard");
+  if(!card) return;
+  if(!Array.isArray(subjs) || !subjs.length){
+    card.style.display = "none";
+    return;
+  }
+
+  const below75 = subjs.filter(s=>s.aggPct < 75);
+  const below85 = subjs.filter(s=>s.aggPct < 85);
+  let tone = "good";
+  let title = "No Issues Keep Going";
+  let detail = "All subjects are at or above 85%. Keep the same consistency.";
+  let accent = "var(--safe)";
+  let bg = "var(--safe-bg)";
+
+  if(below75.length > 0){
+    tone = "critical";
+    title = "Critical Attendance Risk";
+    detail = `Get ready with medical certificates or be ready to be detained. ${below75.length} subject${below75.length===1?"":"s"} are below 75%.`;
+    accent = "var(--danger)";
+    bg = "var(--danger-bg)";
+  }else if(below85.length > 0){
+    tone = "warning";
+    title = "Condonation Alert";
+    detail = `At least one subject is below 85%. Get ready to pay condonation fee of ₹500.`;
+    accent = "var(--cond)";
+    bg = "var(--cond-bg)";
+  }
+
+  card.innerHTML = `
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:14px;flex-wrap:wrap;">
+      <div>
+        <div style="font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:${accent};margin-bottom:6px">Current Status</div>
+        <div style="font-family:var(--font-display);font-size:20px;color:${accent};margin-bottom:6px">${title}</div>
+        <div style="font-size:13px;line-height:1.6;color:var(--ivory-2)">${detail}</div>
+      </div>
+      <div style="min-width:128px;text-align:right">
+        <div style="font-size:11px;color:var(--silver);text-transform:uppercase;letter-spacing:.12em">Condition</div>
+        <div style="margin-top:6px;display:inline-flex;align-items:center;gap:8px;padding:6px 10px;border-radius:999px;border:1px solid ${accent};background:${bg};color:${accent};font-size:11px;letter-spacing:.08em;text-transform:uppercase">${tone}</div>
+      </div>
+    </div>
+  `;
+  card.style.borderColor = accent;
+  card.style.boxShadow = `0 8px 22px rgba(0,0,0,.35), 0 0 0 1px ${bg} inset`;
+  card.style.display = "block";
 }
 
 function togglePriorityMode(){
@@ -718,7 +890,7 @@ function logout() {
 function expireSessionNow() {
   clearSessionCache();
   showLoginView();
-  showBanner("Session expired after 1 minute. Please sign in again.", "info");
+  showBanner("Session expired after 5 minutes. Please sign in again.", "info");
 }
 
 function scheduleCacheExpiry(expiresAt) {
@@ -752,7 +924,7 @@ function tryRestoreCachedSession() {
 
   scheduleCacheExpiry(cache.expiresAt);
   hideOfflineNotice();
-  showBanner("Restored your dashboard from 1-minute cache.", "ok");
+  showBanner("Restored your dashboard from 5-minute cache.", "ok");
   return true;
 }
 
