@@ -525,3 +525,65 @@ requestIdleCallback ? requestIdleCallback(refreshCaptcha) : setTimeout(refreshCa
 document.getElementById("user").addEventListener("keydown",e=>e.key==="Enter"&&document.getElementById("pass").focus());
 document.getElementById("pass").addEventListener("keydown",e=>e.key==="Enter"&&document.getElementById("captcha").focus());
 document.getElementById("captcha").addEventListener("keydown",e=>e.key==="Enter"&&login());
+
+/* Material-like UI helpers: theme toggle + ripple interaction */
+const THEME_KEY = "klattendance_theme";
+
+function applyTheme(theme){
+  const isDark = theme === "dark";
+  document.body.setAttribute("data-theme", isDark ? "dark" : "light");
+  const icon = document.getElementById("themeIcon");
+  if(icon) icon.textContent = isDark ? "light_mode" : "dark_mode";
+}
+
+function initThemeToggle(){
+  const saved = localStorage.getItem(THEME_KEY);
+  applyTheme(saved === "dark" ? "dark" : "light");
+
+  const btn = document.getElementById("themeBtn");
+  if(!btn) return;
+
+  btn.addEventListener("click", ()=>{
+    const next = document.body.getAttribute("data-theme") === "dark" ? "light" : "dark";
+    applyTheme(next);
+    localStorage.setItem(THEME_KEY, next);
+  });
+}
+
+function createRipple(evt, host){
+  const rect = host.getBoundingClientRect();
+  const size = Math.max(rect.width, rect.height) * 2;
+  const x = evt.clientX - rect.left - size / 2;
+  const y = evt.clientY - rect.top - size / 2;
+  const ripple = document.createElement("span");
+  ripple.className = "ripple-circle";
+  ripple.style.width = size + "px";
+  ripple.style.height = size + "px";
+  ripple.style.left = x + "px";
+  ripple.style.top = y + "px";
+  host.appendChild(ripple);
+  ripple.addEventListener("animationend", ()=>ripple.remove(), { once:true });
+}
+
+function initRipples(){
+  const selectors = [
+    "button",
+    ".chip",
+    ".tab-btn",
+    ".btn",
+    ".sim-type-chip",
+    ".sim-stepper-btn",
+    "a[onclick]"
+  ].join(",");
+
+  document.addEventListener("pointerdown", (evt)=>{
+    if(!(evt.target instanceof Element)) return;
+    const host = evt.target.closest(selectors);
+    if(!host || host.disabled) return;
+    host.classList.add("ripple-host");
+    createRipple(evt, host);
+  });
+}
+
+initThemeToggle();
+initRipples();
