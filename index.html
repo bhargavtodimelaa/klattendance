@@ -8,6 +8,12 @@ let SUBJECTS=[], curFilter="all";
 const CACHE_KEY = "klAttendanceCacheV1";
 const CACHE_TTL_MS = 60 * 1000;
 let cacheExpiryTimer = null;
+let captchaBlobUrl = "";
+const OFFLINE_KEY = "klAttendanceOfflineV1";
+const GOAL_KEY = "klAttendanceGoalsV1";
+const GOAL_OPTIONS = [75,85,90];
+let priorityMode = false;
+let SUBJECT_GOALS = {};
 
 const MOTIVATIONAL_QUOTES = [
   "Small daily consistency beats last-minute panic.",
@@ -38,6 +44,46 @@ function getCompKey(name="", ltps="") {
 function getStatus(p){ return p>=85?"safe":p>=75?"cond":"danger"; }
 const ST_LABEL={safe:"Safe ✓",cond:"Conditional ⚠",danger:"Danger ✗"};
 const ST_COLOR={safe:"var(--safe)",cond:"var(--cond)",danger:"var(--danger)"};
+
+function readJsonStorage(key, fallback){
+  try{
+    const raw = localStorage.getItem(key);
+    if(!raw) return fallback;
+    const parsed = JSON.parse(raw);
+    return parsed && typeof parsed === "object" ? parsed : fallback;
+  }catch{
+    return fallback;
+  }
+}
+
+SUBJECT_GOALS = readJsonStorage(GOAL_KEY, {});
+
+function getSubjectKey(s){
+  return (s.code || s.name || "SUBJECT").trim().toUpperCase();
+}
+
+function getSubjectGoal(s){
+  const key = getSubjectKey(s);
+  const val = Number(SUBJECT_GOALS[key]);
+  return GOAL_OPTIONS.includes(val) ? val : 85;
+}
+
+function setSubjectGoal(key, val){
+  const target = Number(val);
+  if(!GOAL_OPTIONS.includes(target)) return;
+  SUBJECT_GOALS[key] = target;
+  localStorage.setItem(GOAL_KEY, JSON.stringify(SUBJECT_GOALS));
+  applyFilters();
+}
+
+function getPriorityScore(s){
+  const goal = getSubjectGoal(s);
+  const deficitGoal = Math.max(0, goal - s.aggPct);
+  const deficitDanger = Math.max(0, 75 - s.aggPct);
+  const weakComponents = s.components.reduce((acc,c)=>acc + Math.max(0, 75 - c.pct) * (c.weight/100), 0);
+  const absRate = s.conducted>0 ? (s.absent/s.conducted)*100 : 0;
+  return Math.round((deficitGoal*2 + deficitDanger*4 + weakComponents + absRate*0.2) * 10) / 10;
+}
 
 /* Logic for weighted calculation - supports multiple overrides */
 function calcWeightedPct(components, overrides = {}) {
@@ -134,6 +180,10 @@ function buildProjections(subj) {
 ═══════════════════════════════════ */
 function renderCard(s) {
   const st=s.status, pctCls=`pct-${st}`, barCls=`bar-${st}`;
+  const goal = getSubjectGoal(s);
+  const goalProgress = Math.min(100, Math.round((s.aggPct/goal)*1000)/10);
+  const goalKey = encodeURIComponent(getSubjectKey(s));
+  const priorityScore = getPriorityScore(s);
   let compHtml="";
   s.components.forEach(c=>{
     const cpSt=getStatus(c.pct), cpColor=ST_COLOR[cpSt];
@@ -218,6 +268,25 @@ function renderCard(s) {
       </div>
       <div class="sc-projections">
         <div class="sc-section-title">Class Planning</div>
+        <div class="proj-block" style="padding:10px 12px;border:1px solid var(--border-faint);border-radius:var(--radius);background:var(--ivory-faint)">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:8px">
+            <div style="font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--silver)">Goal Tracker</div>
+            <div style="font-size:11px;color:var(--silver)">Priority Score: <strong style="color:var(--gold-2)">${priorityScore}</strong></div>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:8px">
+            <label style="font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--silver)">Target</label>
+            <select onchange="setSubjectGoal(decodeURIComponent(this.dataset.key), this.value)" data-key="${goalKey}" style="height:30px;background:var(--navy-2);border:1px solid var(--border-faint);color:var(--ivory);border-radius:4px;padding:0 8px">
+              <option value="75" ${goal===75?"selected":""}>75%</option>
+              <option value="85" ${goal===85?"selected":""}>85%</option>
+              <option value="90" ${goal===90?"selected":""}>90%</option>
+            </select>
+            <span style="font-size:11px;color:${s.aggPct>=goal?"var(--safe)":"var(--cond)"}">${s.aggPct>=goal?"On Track":"Below Target"}</span>
+          </div>
+          <div style="height:6px;background:rgba(255,255,255,.08);border-radius:999px;overflow:hidden">
+            <div style="height:100%;width:${goalProgress}%;background:linear-gradient(90deg,var(--safe),var(--gold));"></div>
+          </div>
+          <div style="margin-top:6px;font-size:10px;color:var(--silver)">${s.aggPct}% / ${goal}%</div>
+        </div>
         <div class="proj-block">
           <div class="proj-block-title proj-safe-title">
             <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
@@ -271,7 +340,7 @@ function renderSimCard(s, idx) {
         </div>
         <div class="sim-stepper">
           <button class="sim-stepper-btn" onclick="stepSimValue(${idx}, ${ci}, -1)">−</button>
-          <span class="sim-stepper-val" id="sv-${idx}-${ci}">0</span>
+          <span class="sim-stepper-val" id="sv-${idx}-${ci}">${SIM_STATE[idx][ci].count}</span>
           <button class="sim-stepper-btn" onclick="stepSimValue(${idx}, ${ci}, 1)">+</button>
         </div>
         <div class="sim-type-selector">
@@ -339,6 +408,34 @@ function stepSimValue(idx, ci, dir) {
   SIM_STATE[idx][ci].count = Math.max(0, Math.min(20, SIM_STATE[idx][ci].count + dir));
   el(`sv-${idx}-${ci}`).textContent = SIM_STATE[idx][ci].count;
   updateSubjectSim(idx);
+}
+
+function presetUnits(compKey, preset){
+  const map = {
+    missWeek: { L:3, P:1, T:1, S:1 },
+    attend2Weeks: { L:6, P:2, T:2, S:2 },
+    examMonth: { L:10, P:4, T:3, S:3 }
+  };
+  return (map[preset] && map[preset][compKey]) || 1;
+}
+
+function applySimPreset(preset){
+  if(!SUBJECTS.length) return;
+  const action = preset === "missWeek" ? "skip" : "attend";
+  SUBJECTS.forEach((s, idx) => {
+    SIM_STATE[idx] = s.components.map(c => ({
+      count: Math.min(20, presetUnits(c.key, preset)),
+      type: 1,
+      action
+    }));
+  });
+  renderSimTab();
+  const msg = preset === "missWeek"
+    ? "Applied preset: Miss 1 week"
+    : preset === "attend2Weeks"
+      ? "Applied preset: Attend all next 2 weeks"
+      : "Applied preset: Exam month plan";
+  showBanner(msg, "info");
 }
 
 function updateSubjectSim(idx) {
@@ -424,22 +521,29 @@ function setFilter(f,el_){
 }
 
 function applyFilters(){
-  const q=document.getElementById("srch").value.toLowerCase();
+  const q=(document.getElementById("srch").value||"").toLowerCase();
   let list=SUBJECTS.filter(s=>{
     if(curFilter==="safe"&&s.status!=="safe") return false;
     if(curFilter==="cond"&&s.status!=="cond") return false;
     if(curFilter==="danger"&&s.status!=="danger") return false;
-    if(q&&!s.name.toLowerCase().includes(q)&&!s.code.toLowerCase().includes(q)) return false;
+    const nm=(s.name||"").toLowerCase();
+    const cd=(s.code||"").toLowerCase();
+    if(q&&!nm.includes(q)&&!cd.includes(q)) return false;
     return true;
   });
+  if(priorityMode){
+    list = list.slice().sort((a,b)=>getPriorityScore(b)-getPriorityScore(a));
+  }
   document.getElementById("cardsContainer").innerHTML=list.map(renderCard).join("");
-  document.getElementById("secTitle").textContent=curFilter==="all"?"All Subjects":curFilter==="safe"?"Safe Subjects":curFilter==="cond"?"Conditional Subjects":"Danger Subjects";
+  const baseTitle=curFilter==="all"?"All Subjects":curFilter==="safe"?"Safe Subjects":curFilter==="cond"?"Conditional Subjects":"Danger Subjects";
+  document.getElementById("secTitle").textContent=priorityMode?`${baseTitle} · Priority Ranked`:baseTitle;
   document.getElementById("secCount").textContent=`${list.length} of ${SUBJECTS.length} subject${SUBJECTS.length!==1?"s":""}`;
 }
 
 function renderSimTab(){
   document.getElementById("simCount").textContent=`${SUBJECTS.length} subject${SUBJECTS.length!==1?"s":""}`;
   document.getElementById("simContainer").innerHTML=SUBJECTS.map((s,i)=>renderSimCard(s,i)).join("");
+  setTimeout(()=>SUBJECTS.forEach((_,i)=>{ if(SIM_STATE[i]) updateSubjectSim(i); }),0);
 }
 
 /* ═══════════════════════════════════
@@ -469,6 +573,92 @@ function showBanner(msg,type="info"){
 function ld(id,sid,on){document.getElementById(id).disabled=on;document.getElementById(sid).style.display=on?"inline-block":"none";}
 
 function el(id){ return document.getElementById(id); }
+
+function ensureEnhancementButtons(){
+  const actionWrap = document.querySelector("#detailsTab .toolbar-bar > div:last-child");
+  if(actionWrap && !el("priorityBtn")){
+    const btn = document.createElement("button");
+    btn.id = "priorityBtn";
+    btn.className = "btn btn-t";
+    btn.innerHTML = '<svg fill="currentColor" height="13" viewBox="0 0 24 24" width="13"><path d="M3 13h8v-2H3v2zm0 6h14v-2H3v2zM3 7h18V5H3v2z"/></svg> Priority';
+    btn.onclick = togglePriorityMode;
+    actionWrap.prepend(btn);
+  }
+
+  const simInfo = document.querySelector("#simTab .info-box");
+  if(simInfo && !el("simPresetBar")){
+    const bar = document.createElement("div");
+    bar.id = "simPresetBar";
+    bar.className = "toolbar-bar";
+    bar.style.marginTop = "-6px";
+    bar.innerHTML = '<div style="font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--silver);margin-right:8px">What-If Presets</div><button class="btn btn-t" onclick="applySimPreset(\'missWeek\')">Miss 1 Week</button><button class="btn btn-t" onclick="applySimPreset(\'attend2Weeks\')">Attend 2 Weeks</button><button class="btn btn-t" onclick="applySimPreset(\'examMonth\')">Exam Month Plan</button>';
+    simInfo.insertAdjacentElement("afterend", bar);
+  }
+
+  const banner = el("banner");
+  if(banner && !el("offlineNotice")){
+    const box = document.createElement("div");
+    box.id = "offlineNotice";
+    box.className = "card";
+    box.style.display = "none";
+    box.style.padding = "14px 18px";
+    box.style.marginBottom = "14px";
+    box.innerHTML = '<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap"><div><div style="font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--cond)">Offline Snapshot</div><div id="offlineMeta" style="font-size:12px;color:var(--silver);margin-top:4px"></div></div><div style="display:flex;gap:8px"><button class="btn btn-t" onclick="fetchAttendance()">Retry Fetch</button><button class="btn btn-t" onclick="refreshCaptcha()">Retry Captcha</button></div></div>';
+    banner.insertAdjacentElement("afterend", box);
+  }
+}
+
+function togglePriorityMode(){
+  priorityMode = !priorityMode;
+  const btn = el("priorityBtn");
+  if(btn){
+    btn.style.borderColor = priorityMode ? "var(--gold)" : "var(--border-silver)";
+    btn.style.color = priorityMode ? "var(--gold-2)" : "var(--ivory-2)";
+    btn.title = priorityMode ? "Priority ranking ON" : "Priority ranking OFF";
+  }
+  applyFilters();
+}
+
+function saveOfflineSnapshot(payload){
+  localStorage.setItem(OFFLINE_KEY, JSON.stringify({ ...payload, savedAt: Date.now() }));
+}
+
+function readOfflineSnapshot(){
+  const data = readJsonStorage(OFFLINE_KEY, null);
+  if(!data || !Array.isArray(data.subjects) || !data.subjects.length) return null;
+  return data;
+}
+
+function showOfflineNotice(savedAt){
+  const n = el("offlineNotice");
+  const m = el("offlineMeta");
+  if(!n || !m) return;
+  const dt = new Date(savedAt || Date.now());
+  m.textContent = `Using last successful data from ${dt.toLocaleString()}. Live network is unavailable.`;
+  n.style.display = "block";
+}
+
+function hideOfflineNotice(){
+  const n = el("offlineNotice");
+  if(n) n.style.display = "none";
+}
+
+function ensureLogoutButton(){
+  if(el("logoutBtn")) return;
+  const hdr = document.querySelector(".app-bar");
+  if(!hdr) return;
+  const btn = document.createElement("button");
+  btn.id = "logoutBtn";
+  btn.className = "btn btn-o btn-sm";
+  btn.style.display = "none";
+  btn.style.height = "34px";
+  btn.style.padding = "0 14px";
+  btn.style.fontSize = "10px";
+  btn.style.letterSpacing = ".14em";
+  btn.innerHTML = '<svg fill="currentColor" height="12" viewBox="0 0 24 24" width="12"><path d="M16 13v-2H7V8l-5 4 5 4v-3zM20 3h-8c-1.1 0-2 .9-2 2v4h2V5h8v14h-8v-4h-2v4c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z"/></svg> Logout';
+  btn.addEventListener("click", logout);
+  hdr.appendChild(btn);
+}
 
 function saveSessionCache(payload) {
   const record = {
@@ -510,7 +700,19 @@ function showLoginView() {
   document.getElementById("selCard").style.display = "none";
   document.getElementById("attsec").style.display = "none";
   document.getElementById("uchip").classList.remove("show");
+  hideOfflineNotice();
+  const lb = el("logoutBtn");
+  if (lb) lb.style.display = "none";
   SUBJECTS = [];
+}
+
+function logout() {
+  SID = "";
+  CSRF = "";
+  clearSessionCache();
+  showLoginView();
+  refreshCaptcha();
+  showBanner("Logged out successfully.", "ok");
 }
 
 function expireSessionNow() {
@@ -545,8 +747,11 @@ function tryRestoreCachedSession() {
   document.getElementById("ulbl").textContent = uid;
   document.getElementById("uav").textContent = uid[0] ? uid[0].toUpperCase() : "S";
   document.getElementById("uchip").classList.add("show");
+  const lb = el("logoutBtn");
+  if (lb) lb.style.display = "inline-flex";
 
   scheduleCacheExpiry(cache.expiresAt);
+  hideOfflineNotice();
   showBanner("Restored your dashboard from 1-minute cache.", "ok");
   return true;
 }
@@ -618,17 +823,31 @@ function showLoginProgressOverlay() {
 /* ═══ CAPTCHA ═══ */
 async function refreshCaptcha(){
   document.getElementById("capbox").style.opacity=".4";
-  try{const r=await fetch(WORKER+"/captcha");SID=r.headers.get("x-session-id");document.getElementById("capImg").src=URL.createObjectURL(await r.blob());}
+  try{
+    const r=await fetch(WORKER+"/captcha");
+    SID=r.headers.get("x-session-id")||"";
+    const blobUrl=URL.createObjectURL(await r.blob());
+    if(captchaBlobUrl) URL.revokeObjectURL(captchaBlobUrl);
+    captchaBlobUrl=blobUrl;
+    document.getElementById("capImg").src=blobUrl;
+  }
   catch{showBanner("Could not load captcha.","err");}
   document.getElementById("capbox").style.opacity="1";
 }
 
 /* ═══ LOGIN ═══ */
 async function login(){
+  const uidVal=(el("user").value||"").trim();
+  const pwdVal=el("pass").value||"";
+  const capVal=(el("captcha").value||"").trim();
+  if(!uidVal||!pwdVal||!capVal){
+    showBanner("Please fill Student ID, Password, and Captcha.","err");
+    return;
+  }
   const progress = showLoginProgressOverlay();
   ld("loginBtn","loginSpin",true);
   try{
-    const res=await fetch(WORKER+"/login",{method:"POST",headers:{"Content-Type":"application/json","x-session-id":SID},body:JSON.stringify({username:user.value.trim(),password:pass.value,captcha:captcha.value.trim()})});
+    const res=await fetch(WORKER+"/login",{method:"POST",headers:{"Content-Type":"application/json","x-session-id":SID},body:JSON.stringify({username:uidVal,password:pwdVal,captcha:capVal})});
     const d=await res.json();
     if(!d.success){showBanner(d.message||"Login failed.","err");progress.fail();refreshCaptcha();ld("loginBtn","loginSpin",false);return;}
     SID=d.sessionId;CSRF=d.csrfToken;
@@ -636,10 +855,12 @@ async function login(){
     fill("yearSel",d.academicYears);fill("semSel",d.semesters);
     document.getElementById("loginSection").style.display="none";
     document.getElementById("selCard").style.display="block";
-    const uid=user.value.trim();
+    const uid=uidVal;
     document.getElementById("ulbl").textContent=uid;
-    document.getElementById("uav").textContent=uid[0].toUpperCase();
+    document.getElementById("uav").textContent=uid[0]?uid[0].toUpperCase():"S";
     document.getElementById("uchip").classList.add("show");
+    const lb = el("logoutBtn");
+    if (lb) lb.style.display = "inline-flex";
     await progress.complete();
     showBanner("Signed in successfully","ok");
   }catch{progress.fail();showBanner("Network error. Please try again.","err");}
@@ -658,12 +879,30 @@ async function fetchAttendance(){
     document.getElementById("selCard").style.display="none";
     document.getElementById("attsec").style.display="block";
     saveSessionCache({
-      uid: document.getElementById("ulbl").textContent || user.value.trim() || "Student",
+      uid: document.getElementById("ulbl").textContent || (el("user").value||"").trim() || "Student",
       subjects: SUBJECTS
     });
+    saveOfflineSnapshot({
+      uid: document.getElementById("ulbl").textContent || (el("user").value||"").trim() || "Student",
+      subjects: SUBJECTS
+    });
+    hideOfflineNotice();
     setTimeout(()=>document.getElementById("attsec").scrollIntoView({behavior:"smooth",block:"start"}),120);
     showBanner(`Loaded ${SUBJECTS.length} subject${SUBJECTS.length!==1?"s":""}. Dashboard ready.`,"ok");
-  }catch{showBanner("Failed to fetch attendance data.","err");}
+  }catch{
+    const offline = readOfflineSnapshot();
+    if(offline){
+      SUBJECTS = offline.subjects;
+      renderStats(SUBJECTS);
+      applyFilters();
+      document.getElementById("selCard").style.display="none";
+      document.getElementById("attsec").style.display="block";
+      showOfflineNotice(offline.savedAt);
+      showBanner("Network failed. Showing offline snapshot.","info");
+    }else{
+      showBanner("Failed to fetch attendance data.","err");
+    }
+  }
   ld("fetchBtn","fetchSpin",false);
 }
 
@@ -684,6 +923,8 @@ function exportCSV(){
 }
 
 /* ═══ INIT ═══ */
+ensureLogoutButton();
+ensureEnhancementButtons();
 if(!tryRestoreCachedSession()){
   if(typeof window.requestIdleCallback === "function") window.requestIdleCallback(refreshCaptcha);
   else setTimeout(refreshCaptcha,0);
