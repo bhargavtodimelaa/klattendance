@@ -5,6 +5,18 @@ const WORKER = "https://dawn-fire-931d.bhargavtodimela4.workers.dev";
 let SID="", CSRF="";
 let SUBJECTS=[], curFilter="all";
 
+const CACHE_KEY = "klAttendanceCacheV1";
+const CACHE_TTL_MS = 60 * 1000;
+let cacheExpiryTimer = null;
+
+const MOTIVATIONAL_QUOTES = [
+  "Small daily consistency beats last-minute panic.",
+  "Attendance today protects your options tomorrow.",
+  "Every class attended is one less risk later.",
+  "Discipline compounds faster than excuses.",
+  "Show up now, thank yourself at exam time."
+];
+
 const CMETA = {
   L:{ name:"Lecture",   weight:100, color:"#60a5fa", bg:"rgba(96,165,250,.12)", cls:"tb-L" },
   P:{ name:"Practical", weight:50,  color:"#4ade80", bg:"rgba(74,222,128,.12)", cls:"tb-P" },
@@ -458,6 +470,151 @@ function ld(id,sid,on){document.getElementById(id).disabled=on;document.getEleme
 
 function el(id){ return document.getElementById(id); }
 
+function saveSessionCache(payload) {
+  const record = {
+    ...payload,
+    savedAt: Date.now(),
+    expiresAt: Date.now() + CACHE_TTL_MS
+  };
+  localStorage.setItem(CACHE_KEY, JSON.stringify(record));
+  scheduleCacheExpiry(record.expiresAt);
+}
+
+function readSessionCache() {
+  try {
+    const raw = localStorage.getItem(CACHE_KEY);
+    if (!raw) return null;
+    const data = JSON.parse(raw);
+    if (!data || typeof data.expiresAt !== "number") return null;
+    if (Date.now() >= data.expiresAt) {
+      clearSessionCache();
+      return null;
+    }
+    return data;
+  } catch {
+    clearSessionCache();
+    return null;
+  }
+}
+
+function clearSessionCache() {
+  localStorage.removeItem(CACHE_KEY);
+  if (cacheExpiryTimer) {
+    clearTimeout(cacheExpiryTimer);
+    cacheExpiryTimer = null;
+  }
+}
+
+function showLoginView() {
+  document.getElementById("loginSection").style.display = "block";
+  document.getElementById("selCard").style.display = "none";
+  document.getElementById("attsec").style.display = "none";
+  document.getElementById("uchip").classList.remove("show");
+  SUBJECTS = [];
+}
+
+function expireSessionNow() {
+  clearSessionCache();
+  showLoginView();
+  showBanner("Session expired after 1 minute. Please sign in again.", "info");
+}
+
+function scheduleCacheExpiry(expiresAt) {
+  if (cacheExpiryTimer) clearTimeout(cacheExpiryTimer);
+  const delay = Math.max(0, expiresAt - Date.now());
+  cacheExpiryTimer = setTimeout(expireSessionNow, delay);
+}
+
+function tryRestoreCachedSession() {
+  const cache = readSessionCache();
+  if (!cache) return false;
+  if (!Array.isArray(cache.subjects) || !cache.subjects.length) {
+    clearSessionCache();
+    return false;
+  }
+
+  SUBJECTS = cache.subjects;
+  renderStats(SUBJECTS);
+  applyFilters();
+
+  document.getElementById("loginSection").style.display = "none";
+  document.getElementById("selCard").style.display = "none";
+  document.getElementById("attsec").style.display = "block";
+
+  const uid = (cache.uid || "Student").trim();
+  document.getElementById("ulbl").textContent = uid;
+  document.getElementById("uav").textContent = uid[0] ? uid[0].toUpperCase() : "S";
+  document.getElementById("uchip").classList.add("show");
+
+  scheduleCacheExpiry(cache.expiresAt);
+  showBanner("Restored your dashboard from 1-minute cache.", "ok");
+  return true;
+}
+
+function ensureLoginOverlay() {
+  if (document.getElementById("loginProgressOverlay")) return;
+  const overlay = document.createElement("div");
+  overlay.id = "loginProgressOverlay";
+  overlay.style.cssText = "position:fixed;inset:0;background:rgba(6,8,16,.8);backdrop-filter:blur(8px);z-index:1200;display:none;align-items:center;justify-content:center;padding:20px;";
+  overlay.innerHTML = `
+    <div style="width:min(560px,100%);background:var(--navy);border:1px solid var(--border);border-radius:var(--radius-lg);padding:24px;box-shadow:var(--shadow);">
+      <div style="font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);margin-bottom:10px;">Signing In</div>
+      <div style="font-family:var(--font-display);font-size:22px;color:var(--ivory);margin-bottom:14px;">Authenticating your session</div>
+      <div style="height:8px;background:var(--navy-2);border:1px solid var(--border-faint);border-radius:999px;overflow:hidden;margin-bottom:10px;">
+        <div id="loginProgressFill" style="height:100%;width:0%;background:linear-gradient(90deg,var(--gold),var(--amber));transition:width .18s ease;"></div>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;">
+        <div id="loginQuote" style="font-size:13px;color:var(--silver);font-style:italic;line-height:1.4;">Preparing secure login...</div>
+        <div id="loginProgressValue" style="font-family:var(--font-display);font-size:24px;color:var(--gold-2);min-width:58px;text-align:right;">0%</div>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+}
+
+function showLoginProgressOverlay() {
+  ensureLoginOverlay();
+  const overlay = el("loginProgressOverlay");
+  const fill = el("loginProgressFill");
+  const value = el("loginProgressValue");
+  const quote = el("loginQuote");
+
+  overlay.style.display = "flex";
+  let progress = 0;
+  let quoteIndex = 0;
+  quote.textContent = MOTIVATIONAL_QUOTES[quoteIndex];
+
+  const progressTimer = setInterval(() => {
+    progress = Math.min(92, progress + Math.max(1, Math.floor(Math.random() * 7)));
+    fill.style.width = progress + "%";
+    value.textContent = progress + "%";
+  }, 140);
+
+  const quoteTimer = setInterval(() => {
+    quoteIndex = (quoteIndex + 1) % MOTIVATIONAL_QUOTES.length;
+    quote.textContent = MOTIVATIONAL_QUOTES[quoteIndex];
+  }, 1100);
+
+  return {
+    complete: () => new Promise(resolve => {
+      clearInterval(progressTimer);
+      clearInterval(quoteTimer);
+      progress = 100;
+      fill.style.width = "100%";
+      value.textContent = "100%";
+      setTimeout(() => {
+        overlay.style.display = "none";
+        resolve();
+      }, 350);
+    }),
+    fail: () => {
+      clearInterval(progressTimer);
+      clearInterval(quoteTimer);
+      overlay.style.display = "none";
+    }
+  };
+}
+
 /* ═══ CAPTCHA ═══ */
 async function refreshCaptcha(){
   document.getElementById("capbox").style.opacity=".4";
@@ -468,11 +625,12 @@ async function refreshCaptcha(){
 
 /* ═══ LOGIN ═══ */
 async function login(){
+  const progress = showLoginProgressOverlay();
   ld("loginBtn","loginSpin",true);
   try{
     const res=await fetch(WORKER+"/login",{method:"POST",headers:{"Content-Type":"application/json","x-session-id":SID},body:JSON.stringify({username:user.value.trim(),password:pass.value,captcha:captcha.value.trim()})});
     const d=await res.json();
-    if(!d.success){showBanner(d.message||"Login failed.","err");refreshCaptcha();ld("loginBtn","loginSpin",false);return;}
+    if(!d.success){showBanner(d.message||"Login failed.","err");progress.fail();refreshCaptcha();ld("loginBtn","loginSpin",false);return;}
     SID=d.sessionId;CSRF=d.csrfToken;
     const fill=(id,arr)=>document.getElementById(id).innerHTML=arr.map(x=>`<option value="${x.value}">${x.label}</option>`).join("");
     fill("yearSel",d.academicYears);fill("semSel",d.semesters);
@@ -482,8 +640,9 @@ async function login(){
     document.getElementById("ulbl").textContent=uid;
     document.getElementById("uav").textContent=uid[0].toUpperCase();
     document.getElementById("uchip").classList.add("show");
+    await progress.complete();
     showBanner("Signed in successfully","ok");
-  }catch{showBanner("Network error. Please try again.","err");}
+  }catch{progress.fail();showBanner("Network error. Please try again.","err");}
   ld("loginBtn","loginSpin",false);
 }
 
@@ -498,6 +657,10 @@ async function fetchAttendance(){
     applyFilters();
     document.getElementById("selCard").style.display="none";
     document.getElementById("attsec").style.display="block";
+    saveSessionCache({
+      uid: document.getElementById("ulbl").textContent || user.value.trim() || "Student",
+      subjects: SUBJECTS
+    });
     setTimeout(()=>document.getElementById("attsec").scrollIntoView({behavior:"smooth",block:"start"}),120);
     showBanner(`Loaded ${SUBJECTS.length} subject${SUBJECTS.length!==1?"s":""}. Dashboard ready.`,"ok");
   }catch{showBanner("Failed to fetch attendance data.","err");}
@@ -521,7 +684,10 @@ function exportCSV(){
 }
 
 /* ═══ INIT ═══ */
-requestIdleCallback ? requestIdleCallback(refreshCaptcha) : setTimeout(refreshCaptcha,0);
+if(!tryRestoreCachedSession()){
+  if(typeof window.requestIdleCallback === "function") window.requestIdleCallback(refreshCaptcha);
+  else setTimeout(refreshCaptcha,0);
+}
 document.getElementById("user").addEventListener("keydown",e=>e.key==="Enter"&&document.getElementById("pass").focus());
 document.getElementById("pass").addEventListener("keydown",e=>e.key==="Enter"&&document.getElementById("captcha").focus());
 document.getElementById("captcha").addEventListener("keydown",e=>e.key==="Enter"&&login());</script><script>document.addEventListener("contextmenu",e=>e.preventDefault());
