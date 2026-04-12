@@ -133,49 +133,6 @@ function buildSubjectActionPlan(s){
   };
 }
 
-function renderAISummary(){
-  if(!SUBJECTS.length){
-    showBanner("Load attendance first to generate AI summary.","info");
-    return;
-  }
-  const card = el("aiSummaryCard");
-  if(!card) return;
-
-  const plans = SUBJECTS
-    .slice()
-    .sort((a,b)=>getPriorityScore(b)-getPriorityScore(a))
-    .slice(0,3)
-    .map(buildSubjectActionPlan);
-
-  const avgNow = SUBJECTS.reduce((a,s)=>a+s.aggPct,0)/SUBJECTS.length;
-  const avgPred = plans.length ? plans.reduce((a,p)=>a+p.predicted,0)/plans.length : avgNow;
-
-  card.innerHTML = `
-    <div class="section-header" style="margin-bottom:12px">
-      <span class="section-title">AI Summary Card</span>
-      <span class="section-count">Top ${plans.length} urgent subjects</span>
-    </div>
-    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px">
-      ${plans.map((p, i) => `
-        <div class="sim-card st-${getStatus(p.current)}" style="margin:0">
-          <div style="padding:14px 16px">
-            <div style="font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--silver);margin-bottom:6px">Priority #${i+1} · Score ${p.priority}</div>
-            <div style="font-family:var(--font-display);font-size:16px;color:var(--ivory);margin-bottom:6px">${p.subject.name||"Subject"}</div>
-            <div style="font-size:12px;color:var(--silver);margin-bottom:8px">Current ${p.current}% · Goal ${p.goal}%</div>
-            <div style="font-size:12px;color:var(--gold-2);margin-bottom:8px">Action: ${p.actionText}</div>
-            <div style="font-size:12px;color:${p.predicted>=p.goal?"var(--safe)":"var(--cond)"}">Predicted outcome: ${p.predicted}%</div>
-          </div>
-        </div>
-      `).join("")}
-    </div>
-    <div class="info-box" style="margin-top:12px;margin-bottom:0">
-      <svg fill="currentColor" height="15" viewBox="0 0 24 24" width="15"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
-      <span>If you follow these actions, focus-subject average can move from ${avgNow.toFixed(1)}% to ${avgPred.toFixed(1)}%.</span>
-    </div>
-  `;
-  card.style.display = "block";
-}
-
 /* Logic for weighted calculation - supports multiple overrides */
 function calcWeightedPct(components, overrides = {}) {
   let totalWeight=0, weightedSum=0;
@@ -689,26 +646,6 @@ function ensureEnhancementButtons(){
     actionWrap.prepend(btn);
   }
 
-  if(actionWrap && !el("aiSummaryBtn")){
-    const btn = document.createElement("button");
-    btn.id = "aiSummaryBtn";
-    btn.className = "btn btn-t";
-    btn.innerHTML = '<svg fill="currentColor" height="13" viewBox="0 0 24 24" width="13"><path d="M9 21c0-4.97 4.03-9 9-9v9H9zm0-2h7v-7c-3.87 0-7 3.13-7 7zM5 3h14v2H5zM5 7h10v2H5zM5 11h6v2H5z"/></svg> AI Summary';
-    btn.onclick = renderAISummary;
-    actionWrap.prepend(btn);
-  }
-
-  const secHeader = document.querySelector("#detailsTab .section-header");
-  if(secHeader && !el("aiSummaryCard")){
-    const card = document.createElement("div");
-    card.id = "aiSummaryCard";
-    card.className = "card";
-    card.style.display = "none";
-    card.style.padding = "16px 18px";
-    card.style.marginBottom = "18px";
-    secHeader.insertAdjacentElement("afterend", card);
-  }
-
   const simInfo = document.querySelector("#simTab .info-box");
   if(simInfo && !el("simPresetBar")){
     const bar = document.createElement("div");
@@ -729,6 +666,16 @@ function ensureEnhancementButtons(){
     box.style.marginBottom = "14px";
     box.innerHTML = '<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap"><div><div style="font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--cond)">Offline Snapshot</div><div id="offlineMeta" style="font-size:12px;color:var(--silver);margin-top:4px"></div></div><div style="display:flex;gap:8px"><button class="btn btn-t" onclick="fetchAttendance()">Retry Fetch</button><button class="btn btn-t" onclick="refreshCaptcha()">Retry Captcha</button></div></div>';
     banner.insertAdjacentElement("afterend", box);
+  }
+
+  if(banner && !el("newsCard")){
+    const card = document.createElement("div");
+    card.id = "newsCard";
+    card.className = "card";
+    card.style.padding = "16px 18px";
+    card.style.marginBottom = "18px";
+    card.innerHTML = '<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap"><div><div style="font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);margin-bottom:6px">Latest News</div><div id="newsText" style="font-family:var(--font-display);font-size:16px;color:var(--ivory);line-height:1.5">Loading latest attendance update...</div></div><div style="min-width:120px;text-align:right"><div style="font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--silver);margin-bottom:6px">Source</div><div style="font-size:11px;color:var(--silver-2)">Worker feed</div></div></div>';
+    banner.insertAdjacentElement("afterend", card);
   }
 }
 
@@ -830,6 +777,45 @@ function ensureLogoutButton(){
   btn.innerHTML = '<svg fill="currentColor" height="12" viewBox="0 0 24 24" width="12"><path d="M16 13v-2H7V8l-5 4 5 4v-3zM20 3h-8c-1.1 0-2 .9-2 2v4h2V5h8v14h-8v-4h-2v4c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z"/></svg> Logout';
   btn.addEventListener("click", logout);
   hdr.appendChild(btn);
+
+  if(!el("dateDayBadge")){
+    const badge = document.createElement("div");
+    badge.id = "dateDayBadge";
+    badge.style.display = "flex";
+    badge.style.flexDirection = "column";
+    badge.style.alignItems = "flex-end";
+    badge.style.justifyContent = "center";
+    badge.style.marginLeft = "10px";
+    badge.style.padding = "5px 10px";
+    badge.style.border = "1px solid var(--border)";
+    badge.style.borderRadius = "10px";
+    badge.style.background = "var(--ivory-faint)";
+    badge.style.minWidth = "112px";
+    badge.style.color = "var(--ivory-2)";
+    badge.innerHTML = '<div id="todayDay" style="font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--gold)"></div><div id="todayDate" style="font-size:11px;letter-spacing:.04em;color:var(--ivory-2)"></div>';
+    hdr.appendChild(badge);
+  }
+}
+
+function updateDateDay(){
+  const dayEl = el("todayDay");
+  const dateEl = el("todayDate");
+  if(!dayEl || !dateEl) return;
+  const now = new Date();
+  dayEl.textContent = now.toLocaleDateString("en-IN", { weekday: "long" });
+  dateEl.textContent = now.toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" });
+}
+
+async function loadLatestNews(){
+  const textEl = el("newsText");
+  if(!textEl) return;
+  try{
+    const res = await fetch("https://dark-cloud-91bb.bhargavtodimela4.workers.dev/");
+    const data = await res.json();
+    textEl.textContent = typeof data.message === "string" && data.message.trim() ? data.message.trim() : "No latest news available.";
+  }catch{
+    textEl.textContent = "Latest news could not be loaded right now.";
+  }
 }
 
 function saveSessionCache(payload) {
@@ -1097,6 +1083,8 @@ function exportCSV(){
 /* ═══ INIT ═══ */
 ensureLogoutButton();
 ensureEnhancementButtons();
+updateDateDay();
+loadLatestNews();
 if(!tryRestoreCachedSession()){
   if(typeof window.requestIdleCallback === "function") window.requestIdleCallback(refreshCaptcha);
   else setTimeout(refreshCaptcha,0);
